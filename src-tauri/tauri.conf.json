@@ -7,12 +7,36 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "tauri-svelte-esp-trans",
+    "productName": "tauri-svelte-esp-seal",
     "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {
       "all": false,
+      "dialog": {
+        "all": false,
+        "ask": true,
+        "confirm": false,
+        "message": true,
+        "open": true,
+        "save": false
+      },
+      "path": {
+        "all": true
+      },
+      "fs":{
+        "all": false,
+        "copyFile": false,
+        "createDir": false,
+        "exists": false,
+        "readDir": false,
+        "readFile": true,
+        "removeDir": false,
+        "removeFile": false,
+        "renameFile": false,
+        "scope": ["**"],
+        "writeFile": true
+      },
       "shell": {
         "all": false,
         "open": true
@@ -40,7 +64,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tauri-svelte-esp-trans",
+        "title": "ЭПУ Сервис: Испытание ГЗ",
         "width": 800,
         "height": 600
       }

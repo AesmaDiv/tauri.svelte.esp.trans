@@ -1,0 +1,1 @@
+D:\Projects\Tauri\tauri.svelte.esp.trans\src-tauri\serial_handler\target\debug\serial_handler.exe: D:\Projects\Tauri\tauri.svelte.esp.trans\src-tauri\serial_handler\src\lib.rs D:\Projects\Tauri\tauri.svelte.esp.trans\src-tauri\serial_handler\src\main.rs
