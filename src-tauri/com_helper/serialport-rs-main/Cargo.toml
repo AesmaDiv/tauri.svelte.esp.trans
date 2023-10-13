@@ -1,0 +1,52 @@
+[package]
+name = "serialport"
+version = "4.2.3-alpha.0"
+authors = [
+    "Bryant Mairs <bryant@mai.rs>",
+    "Jesse Braham <jesse@beta7.io>",
+]
+edition = "2018"
+rust-version = "1.56.1"
+description = "A cross-platform low-level serial port library."
+documentation = "https://docs.rs/serialport"
+repository = "https://github.com/serialport/serialport-rs"
+license = "MPL-2.0"
+keywords = ["serial", "hardware", "system", "RS232"]
+categories = ["hardware-support"]
+
+[target."cfg(unix)".dependencies]
+bitflags = "2.4.0"
+cfg-if = "1.0.0"
+nix = { version = "0.26", default-features = false, features = ["fs", "ioctl", "poll", "signal", "term"] }
+
+[target.'cfg(all(target_os = "linux", not(target_env = "musl")))'.dependencies]
+libudev = { version = "0.3.0", optional = true }
+
+[target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
+CoreFoundation-sys = "0.1.4"
+IOKit-sys = "0.1.5"
+mach2 = "0.4.1"
+
+[target."cfg(windows)".dependencies]
+regex = "1.5.5"
+
+[target."cfg(windows)".dependencies.winapi]
+version = "0.3.9"
+features = [
+    "cguid", "commapi", "errhandlingapi", "fileapi", "guiddef", "handleapi", "minwinbase",
+    "minwindef", "ntdef", "setupapi", "winbase", "winerror", "winnt",
+]
+
+[dependencies]
+scopeguard = "1.1"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[dev-dependencies]
+assert_hex = "0.2.2"
+clap = { version = "3.1.6", features = ["derive"] }
+
+[features]
+default = ["libudev"]
+# TODO: Make the feature unconditionally available with the next major release
+# (5.0) and remove this feature gate.
+usbportinfo-interface = []

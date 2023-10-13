@@ -1,22 +1,17 @@
 import { ask } from "@tauri-apps/api/dialog";
-import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/tauri";
-import { appWindow } from "@tauri-apps/api/window";
 import { type Writable, writable, get } from "svelte/store";
 import { SETTINGS } from "./settings";
-import { RECORD, updatePoints as updateDbPoints} from "./database";
+import { POINTS_ROHMS, RECORD, updatePoints as updateDbPoints} from "./database";
 import { SENSORS, ADAM_READING } from "./equipment";
-import type { HipotPoint, ITiming, ROhmData, HipotData } from "../shared/types";
+import type { HipotPoint, HipotData, ITiming } from "../shared/types";
 import { TestStates } from "../shared/types";
-import { SerialPort } from "../shared/serialPort";
 import type { AxisInfo } from "../lib/Chart/chart";
 import { showMessage, NotifierKind } from "../lib/Notifier/notifier";
-import { switchTest as switchPressTest } from "../testing/testing_press";
-import { switchTest as switchPowerTest } from "../testing/testing_power";
+import { switchTest as switchTestROhms } from "../testing/testing_rohms";
+import { switchTest as switchTestHipot } from "../testing/testing_hipot";
 import { AXIES as AXIES_HIPOT_INIT } from "../configs/cfg_hipot";
 
 
-let rohm_timer: NodeJS.Timer;
 let hipot_init: {[name: string]: HipotPoint[]} = {
   h0: [
     {time: 0,  voltage: 380, current: 0.1},
@@ -47,7 +42,7 @@ let hipot_init: {[name: string]: HipotPoint[]} = {
 export let TEST_STATE: Writable<TestStates> = writable(TestStates.IDLE);
 /** Маркер графика портребляемой мощности */
 export let MARKER_HIPOT: Writable<HipotPoint> = writable({} as HipotPoint);
-/** Точки графиков измерения потребляемой мощности c ADAM */
+/** Точки графиков высоковольтного испытания после теста */
 export let POINTS_HIPOT: Writable<HipotData> = writable(hipot_init);
 /** Параметры осей графика потребляемой мощности */
 export let AXIS_HIPOT: Writable<{[name: string]: AxisInfo}> = writable(AXIES_HIPOT_INIT);
@@ -57,11 +52,13 @@ export let AXIS_HIPOT: Writable<{[name: string]: AxisInfo}> = writable(AXIES_HIP
 export function isTestRunning() : boolean {
   return get(TEST_STATE) !== TestStates.IDLE;
 }
+
 /** Проверка состояния другого испытания */
 export function isOtherTestRunning (test_state: TestStates) {
   return isTestRunning() && get(TEST_STATE) !== test_state;
   // ![TestStates.IDLE, test_state].includes(get(TEST_STATE))
 }
+
 /** Проверка несохраненных точек */
 export async function haveUnsavedData() {
     if (get(POINTS_HIPOT)) {
@@ -74,6 +71,7 @@ export async function haveUnsavedData() {
     }
     return false;
 }
+
 /** Очистка точек графика испытания */
 export function resetPoints(test_state: TestStates = TestStates.IDLE) {
   // если тест для которого нужно очистить точки не указан ->
@@ -89,19 +87,18 @@ export function resetPoints(test_state: TestStates = TestStates.IDLE) {
   // очистка данных об испытании
   let points = ({
     [TestStates.HIPOT]: POINTS_HIPOT,
+    [TestStates.ROHMS]: POINTS_ROHMS,
   })[test_state];
   points.set({});
 }
+
 /** Сохранение точек графика испытания в БД */
 export function savePoints(test_state: TestStates) {
   if (test_state === TestStates.IDLE) return;
   let points = ({
     [TestStates.HIPOT]: get(POINTS_HIPOT),
+    [TestStates.ROHMS]: get(POINTS_ROHMS),
   })[test_state];
-  let pp = Object.values(points);
-  console.log(pp);
-  pp = pp.flat();
-  console.log(pp);
   let check_sum = Object.values(points)
   .flatMap(v => Object.values(v).flat())
   .reduce((a: number, c: number) => a + c, 0);
@@ -113,6 +110,7 @@ export function savePoints(test_state: TestStates) {
   };
   showMessage("Нет данных для сохранения", NotifierKind.WARNING);
 }
+
 /** Добавление точки испытания  */
 export function updateTime(test_state: TestStates) {
   const timings : ITiming = get(SETTINGS).test[test_state];
@@ -121,6 +119,7 @@ export function updateTime(test_state: TestStates) {
     return data;
   });
 }
+
 /** Переключение состояния испытаний */
 export function switchTest(test_state: TestStates) {
   if (!get(ADAM_READING)) {
@@ -135,35 +134,10 @@ export function switchTest(test_state: TestStates) {
   }
   // запуск/остановка испытания
   ({
-    [TestStates.ROHMS] : switchPressTest,
-    [TestStates.HIPOT] : switchPowerTest,
+    [TestStates.ROHMS] : switchTestROhms,
+    [TestStates.HIPOT] : switchTestHipot,
   })[test_state]();
 }
-
-export async function micrometerStart() {
-  const unlisten = await listen('rohm_measured', (event) => {
-    let data: number[] = event.payload['data'];
-    console.log("EVENT %o", data);
-    console.log("STRING:", String.fromCharCode.apply(null, data))
-    console.log("STRING:", Buffer.from(data).toString())
-  });
-  await invoke("serial_open", { wnd: appWindow, doListen: false });
-  let count = 0;
-  let tmr = setInterval(async() => {
-    if (++count === 10) {
-      await micrometerStop();
-      clearInterval(tmr);
-    }
-    else {
-      let respond = await invoke("serial_request", { bytes: [0x40, 0x30, 0x31, 0x0D]});
-      console.log("Respond %o", respond);
-    } 
-  }, 1000);
-}
-export async function micrometerStop() {
-  await invoke("serial_close", {});
-}
-
 
 
 // при изменении средних значений с ADAM ->

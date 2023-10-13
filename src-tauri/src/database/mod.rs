@@ -9,38 +9,45 @@ use rusqlite_helper::deleting::{delete, delete_table};
 use models_tmpn::{Records, TLRow, Dictionary};
 
 
-pub fn get_testlist(db_path: &str, condition: &str) -> Vec<TLRow> {
+#[tauri::command]
+pub fn read_testlist(db_path: &str, condition: &str) -> Vec<TLRow> {
   let result = read_table_where::<TLRow>(db_path, "Records", condition);
   _check_vec::<TLRow>(result, "RecordList")
 }
 
-pub fn get_record(db_path: &str, rec_id: i32) -> Vec<Records> {
+#[tauri::command]
+pub fn read_record(db_path: &str, rec_id: i32) -> Vec<Records> {
   let cond = format!("ID={}", rec_id);
   let result = read_where::<Records>(db_path, cond.as_str());
   _check_vec::<Records>(result, format!("Record {}", &rec_id).as_str())
 }
-pub fn set_record(db_path: &str, record: &Records) -> usize {
-  let mut result = write(db_path, record);
+#[tauri::command]
+pub fn write_record(db_path: &str, record: Records) -> usize {
+  let mut result = write(db_path, &record);
   if let Some(recid) = record.id {
     result = Ok(recid as usize);
   }
   _check_usize(result, ["Record","write"])
 }
-pub fn del_record(db_path: &str, record: &Records) -> usize {
-  let result = delete(db_path, record);
+#[tauri::command]
+pub fn delete_record(db_path: &str, record: Records) -> usize {
+  let result = delete(db_path, &record);
   _check_usize(result, ["Record","delete"])
 }
 
-pub fn get_dict(db_path: &str, table: &str) -> Vec<Dictionary> {
+#[tauri::command]
+pub fn read_dictionary(db_path: &str, table: &str) -> Vec<Dictionary> {
   let result = read_table::<Dictionary>(db_path, &table);
   _check_vec::<Dictionary>(result, format!("dictionary {}", &table).as_str())
 }
-pub fn set_dict(db_path: &str, table: &str, dict: &Dictionary) -> usize {
-  let result = write_table::<Dictionary>(db_path, table, dict);
+#[tauri::command]
+pub fn write_dictionary(db_path: &str, table: &str, dict: Dictionary) -> usize {
+  let result = write_table::<Dictionary>(db_path, table, &dict);
   _check_usize(result, ["Dictionary","write"])
 }
-pub fn del_dict(db_path: &str, table: &str, dict: &Dictionary) -> usize {
-  let result = delete_table::<Dictionary>(db_path, table, dict);
+#[tauri::command]
+pub fn delete_dictionary(db_path: &str, table: &str, dict: Dictionary) -> usize {
+  let result = delete_table::<Dictionary>(db_path, table, &dict);
   _check_usize(result, ["Dictionary","delete"])
 }
 

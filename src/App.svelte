@@ -9,7 +9,7 @@
   import Protocol from "./lib/Protocol.svelte";
   import AppHeader from "./lib/AppHeader.svelte";
   import Notifier from "./lib/Notifier/Notifier.svelte";
-  import ROhm from "./lib/ROhm.svelte";
+  import ROhm from "./lib/TestROhm.svelte";
 
 
   onMount(async () => await readSettings());

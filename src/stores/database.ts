@@ -11,9 +11,9 @@ import { NotifierKind, showMessage } from "../lib/Notifier/notifier";
 export let TESTLIST: Writable<any[]> = writable([]);
 export let RECORD: Writable<{}> = writable({});
 /** Результат измерения омического сопротивления из БД */
-export let POINTS_ROHMS: Writable<ROhmData> = writable({});
+export let POINTS_ROHMS: Writable<ROhmData> = writable({} as ROhmData);
 /** Результат высоковольтного испытания из БД */
-export let POINTS_HIPOT: Writable<HipotData> = writable({});
+export let POINTS_HIPOT: Writable<HipotData> = writable({} as HipotData);
 export let TESTDATA: Writable<TestData> = writable(undefined);
 export let LIMITS_PRESS: Writable<Limits[]> = writable([]);
 
@@ -52,6 +52,7 @@ export async function readRecord(id: number) {
   POINTS_ROHMS.set(deserializePoints(record[TestStates.ROHMS]));
   console.warn('ТОЧКИ ИСПЫТАНИЙ загружены\n%o', points);
 }
+
 /** Запись данных о точках в БД */
 export async function updatePoints(test_state: TestStates, points_data: ROhmData | HipotData) {
   if (!points_data) { console.warn('Отсутствуют данные для записи'); return; }
@@ -63,6 +64,7 @@ export async function updatePoints(test_state: TestStates, points_data: ROhmData
     await readRecord(id);
   } else { console.warn('Отсутствует ID записи') }
 }
+
 /** Запись данный об объекте в БД */
 export async function updateRecord(record: Object) {
   // обновление даты на текущую
@@ -77,10 +79,12 @@ export async function updateRecord(record: Object) {
   await readTestList();
   await readRecord(id);
 }
+
 /** Полная очистка данных о записи */
 export function resetRecord() {
   RECORD.set({});
-};
+}
+
 /** Обновление пределов давления диафрагм */
 function updateLimitsPress(sealtype) {
   if (!sealtype) return;

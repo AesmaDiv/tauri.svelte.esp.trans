@@ -6,13 +6,12 @@ use models::{Data, SlotParam, Convert, Endian};
 pub mod models;
 
 // const TCP_ADDRESS: &str = "10.10.10.10:502";
-const UDP_ADDRESS: &str = "10.10.10.3:5168";
+// const UDP_ADDRESS: &str = "10.10.10.3:5168";
 const CONNECT_TIMEOUT: u64 = 50;
 
 
 pub fn read<T: Convert  + SlotParam>(address: &str, endian: Endian) -> Option<T> {
-  let endpoint: &str = &[address, "502"].join(":");
-  match read_bytes::<T>(endpoint) {
+  match read_bytes::<T>(address) {
       Ok(data) => {
         let values: Vec<u16> = to_values(&data, endian);
         let result: Option<T> = T::convert(values);
@@ -21,7 +20,7 @@ pub fn read<T: Convert  + SlotParam>(address: &str, endian: Endian) -> Option<T>
       },
       Err(error) => {
         println!(
-          "!!! Error getting {} from {endpoint} >> {:?}",
+          "!!! Error getting {} from {address} >> {:?}",
           std::any::type_name::<T>(),
           error.to_string()
         );
@@ -30,14 +29,12 @@ pub fn read<T: Convert  + SlotParam>(address: &str, endian: Endian) -> Option<T>
   };
 }
 pub fn write<T: SlotParam>(address: &str, data: &Data, endian: Endian) -> bool {
-  let endpoint: &str = &[address, "502"].join(":");
   let bytes = T::build_set(data, endian);
-  println!("Adam write {:?}", bytes);
-  match write_bytes::<T>(endpoint, &bytes) {
+  match write_bytes(address, &bytes) {
       Ok(_) => return true,
       Err(error) => {
         println!(
-          "!!! Error setting {} to {endpoint} >> {:?}",
+          "!!! Error setting {} to {address} >> {:?}",
           std::any::type_name::<T>(),
           error.to_string()
         );
@@ -46,8 +43,9 @@ pub fn write<T: SlotParam>(address: &str, data: &Data, endian: Endian) -> bool {
   };
 }
 
-pub fn listen() -> std::io::Result<()> {
-  let socket = UdpSocket::bind(UDP_ADDRESS)?;
+pub fn listen(address: &str) -> std::io::Result<()> {
+  let endpoint = [address, "5168"].join(":");
+  let socket = UdpSocket::bind(endpoint)?;
   let mut buf = [0; 255];
   let mut count = 0;
   while count < 1 {
@@ -58,9 +56,9 @@ pub fn listen() -> std::io::Result<()> {
 
   Ok(())
 }
-
-fn read_bytes<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
-  if let Ok(sock) = address.parse() {
+pub fn read_bytes<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
+  let endpoint: &str = &[address, "502"].join(":");
+  if let Ok(sock) = endpoint.parse() {
     let timeout = Duration::from_millis(CONNECT_TIMEOUT);
     let mut stream = TcpStream::connect_timeout(&sock, timeout)?;
     let mut bytes = vec![0x0; T::SIZE[0]];
@@ -76,12 +74,17 @@ fn read_bytes<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
     "error parsing IP address")
   )
 }
-fn write_bytes<T: SlotParam>(address: &str, bytes: &[u8; 12]) -> std::io::Result<()> {
-  if let Ok(sock) = address.parse() {
-    let timeout = Duration::from_millis(CONNECT_TIMEOUT);
-    let mut stream = TcpStream::connect_timeout(&sock, timeout)?;
+pub fn write_bytes(address: &str, bytes: &[u8]) -> std::io::Result<()> {
+  let endpoint: &str = &[address, "502"].join(":");
+  match endpoint.parse() {
+      Ok(sock) => {
+        println!("Adam write {:?}", bytes);
+        let timeout = Duration::from_millis(CONNECT_TIMEOUT);
+        let mut stream = TcpStream::connect_timeout(&sock, timeout)?;
 
-    if stream.write(bytes).is_ok() { return Ok(()) };
+        if stream.write(bytes).is_ok() { return Ok(()) };
+      },
+      Err(err) => eprintln!("Error {}", err)
   }
   Err(std::io::Error::new(
     std::io::ErrorKind::AddrNotAvailable,

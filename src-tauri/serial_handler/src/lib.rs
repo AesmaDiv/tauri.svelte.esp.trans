@@ -11,6 +11,8 @@ use serial::{SystemPort, SerialPort};
 pub struct SerialHandler {
   /** Имя COM порта */
   name: String,
+  /** Скорость */
+  baudrate: usize,
   /** Сокет */
   socket: Arc<Mutex<Option<SystemPort>>>,
   /** Состояние чтения */
@@ -18,9 +20,10 @@ pub struct SerialHandler {
 }
 
 impl SerialHandler {
-    pub fn new(port_name: &str) -> SerialHandler {
+    pub fn new(port_name: &str, baudrate: usize) -> SerialHandler {
       SerialHandler {
         name: port_name.to_string(),
+        baudrate,
         socket: Arc::new(Mutex::new(None)),
         is_reading: Arc::new(Mutex::new(false))
       }
@@ -32,7 +35,7 @@ impl SerialHandler {
       if let Ok(mut socket) = serial::open(&self.name) {
         // конфигурирование
         socket.reconfigure(&|settings| {
-          settings.set_baud_rate(serial::Baud9600).unwrap();
+          settings.set_baud_rate(serial::BaudOther(self.baudrate)).unwrap();
           settings.set_char_size(serial::Bits8);
           settings.set_parity(serial::ParityNone);
           settings.set_stop_bits(serial::Stop1);
@@ -40,7 +43,7 @@ impl SerialHandler {
           
           Ok(())
         }).unwrap();
-        socket.set_timeout(Duration::from_millis(100)).unwrap();
+        socket.set_timeout(Duration::from_millis(200)).unwrap();
         // сохранение сокета в структуре
         *self.socket.lock().unwrap() = Some(socket);
 
@@ -117,8 +120,6 @@ impl SerialHandler {
       let is_reading = self.is_reading.clone();
       // запуск потока прослушивания
       std::thread::spawn(move|| {
-        // счётчик попыток чтения с порта
-        let mut count: u64 = 0;
         println!("SerialPort starts listening...");
         loop {
           // флаг прерывания прослушивания
@@ -140,9 +141,7 @@ impl SerialHandler {
           // проверка прерывания
           if interupt { break; }
           // пауза
-          std::thread::sleep(Duration::from_millis(100));
-          println!("Listen count: {}", count);
-          count += 1;
+          std::thread::sleep(Duration::from_millis(50));
         }
         println!("SerialPort stopped listening.")
       });
@@ -168,16 +167,12 @@ impl SerialHandler {
       );
     }
     /** Чтение из порта */
-
     fn read(com: &mut COMPort) -> Vec<u8> {
       // буфер приёма
-      let mut buffer = [0u8; 1024];
+      let mut buffer = [0u8;1024];
       match com.read(&mut buffer) {
         Ok(count) => buffer[0..count].to_vec(),
-        Err(err) => {
-          println!("SerialPort read error {}", err);
-          Vec::new()
-        }
+        Err(_) => Vec::new(),
       }
     }
     /** Запись в порт */

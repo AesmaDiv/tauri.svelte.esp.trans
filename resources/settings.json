@@ -1,31 +1,78 @@
 {
+  "db": {
+    "path": "D:\\DB\\transform.sqlite"
+  },
   "adam": {
-    "ip": "127.0.0.1",
-    "pulling_rate": 500,
+    "ip": "10.0.0.1",
+    "rate": 500,
     "digital": {
-      "lamp": {
-        "slot": 1,
+      "rohm_ab": {
+        "slot": 2,
         "channel": 0
       },
-      "engine_r": {
-        "slot": 1,
+      "rohm_bc": {
+        "slot": 2,
         "channel": 1
       },
-      "engine_l": {
-        "slot": 1,
+      "rohm_ca": {
+        "slot": 2,
         "channel": 2
       },
-      "thrust": {
-        "slot": 1,
+      "rohm_a0": {
+        "slot": 2,
         "channel": 3
       },
-      "valve": {
-        "slot": 1,
+      "rohm_b0": {
+        "slot": 2,
         "channel": 4
       },
-      "alarm": {
-        "slot": 1,
+      "rohm_c0": {
+        "slot": 2,
         "channel": 5
+      },
+      "print": {
+        "slot": 2,
+        "channel": 6
+      },
+      "start": {
+        "slot": 2,
+        "channel": 7
+      },
+      "charge": {
+        "slot": 3,
+        "channel": 0
+      },
+      "k_trans": {
+        "slot": 3,
+        "channel": 1
+      },
+      "i_xx": {
+        "slot": 3,
+        "channel": 2
+      },
+      "lamp": {
+        "slot": 3,
+        "channel": 3
+      },
+      "alarm": {
+        "slot": 3,
+        "channel": 4
+      },
+      "k4": {
+        "slot": 4,
+        "channel": 0
+      },
+      "k5": {
+        "slot": 4,
+        "channel": 1
+      },
+      "k6": {
+        "slot": 4,
+        "channel": 2
+      },
+      "k7": {
+        "slot": 4,
+        "channel": 3
       }
     },
     "analog": {
@@ -79,8 +126,15 @@
       }
     }
   },
-  "db": {
-    "path": "D:\\Projects\\Tauri\\tauri.svelte.esp.seal\\resources\\seal.sqlite"
+  "com": {
+    "hipot": {
+      "name": "COM4",
+      "rate": 112500
+    },
+    "rohms": {
+      "name": "COM8",
+      "rate": 9600
+    }
   },
   "test": {
     "test_press": {

@@ -9,6 +9,22 @@ export class Point {
   x : number = 0;
   y : number = 0;
 };
+/** Тип соединения фаз */
+export enum PhasesConnection {
+  NONE = 0,
+  STAR = 1,
+  NEUTRAL = 2,
+}
+/** Текущие фазы для измерения омического сопротивления */
+export enum Phases {
+  NONE = '',
+  AB = 'rohm_ab',
+  BC = 'rohm_bc',
+  CA = 'rohm_ca',
+  A0 = 'rohm_a0',
+  B0 = 'rohm_b0',
+  C0 = 'rohm_c0',
+}
 /** Точка омического сопротивления */
 export class ROhmPoint {
   /** ом.сопротивление фазы A */
@@ -70,12 +86,12 @@ export interface IAnalog {
 }
 /** Класс дискретных состояний */
 export class DigitalStates {
-  lamp     : boolean;
-  engine_r : boolean;
-  engine_l : boolean;
-  thrust   : boolean;
-  valve    : boolean;
-  alarm    : boolean;
+  lamp    : boolean;
+  rohm_ab : boolean;
+  rohm_bc : boolean;
+  rohm_ca : boolean;
+  start   : boolean;
+  print   : boolean;
 }
 /** Класс данных с датчиков */
 export class Sensors {
@@ -116,6 +132,9 @@ export interface IAdamSource {
 export interface IAdamSourceParams extends IAdamSource {
   d_range: number, offset: number, v_range: number, coeff: number
 }
+export interface IComParams {
+  name: string, rate: number
+}
 export interface ISettings {
   db: {
     path: string;
@@ -126,25 +145,14 @@ export interface ISettings {
   },
   adam: {
     ip: string,
-    pulling_rate: number,
-    digital: {
-      lamp:   IAdamSource,
-      engine_r: IAdamSource,
-      engine_l: IAdamSource,
-      thrust: IAdamSource,
-      valve:  IAdamSource,
-      alarm:  IAdamSource,
-    },
-    analog: {
-      press_sys: IAdamSourceParams,
-      press_top: IAdamSourceParams,
-      press_btm: IAdamSourceParams,
-      torque: IAdamSourceParams,
-      temper: IAdamSourceParams,
-      speed: IAdamSourceParams,
-    }
+    rate: number,
+    digital: { [name: string] : IAdamSource },
+    analog: { [name: string] : IAdamSourceParams }
   },
+  com: { [key: string]: IComParams }
 }
+
+
 
 export class VBuffer {
   values : Array<number>;

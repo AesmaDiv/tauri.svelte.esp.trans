@@ -22,6 +22,7 @@ rusqlite =        { version = "^0.27.0", features = ["bundled"] }
 rusqlite_helper = { path = "./rusqlite_helper"}
 adam =            { path = "./adam"}
 serial_handler =  { path = "./serial_handler"}
+com_helper =      { path = "./com_helper"}
 encoding_rs =     { version = "^0.8.31" }
 encoding_rs_io =  { version = "^0.1.7" }
 

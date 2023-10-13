@@ -65,8 +65,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "ЭПУ Сервис: Испытание ГЗ",
-        "width": 800,
-        "height": 600
+        "width": 960,
+        "height": 720
       }
     ]
   }

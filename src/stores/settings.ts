@@ -6,7 +6,7 @@ import { to_number } from "svelte/internal";
 
 
 /** Путь к файлу настроек TODO: поменять */
-const SETTINGS_PATH : string = "D:\\Projects\\Tauri\\tauri.svelte.esp.seal\\resources\\settings.json";
+const SETTINGS_PATH : string = "D:\\Projects\\Tauri\\tauri.svelte.esp.trans\\resources\\settings.json";
 /** Настройки программы */
 export let SETTINGS : Writable<ISettings> = writable({} as ISettings);
 
@@ -21,12 +21,15 @@ export async function readSettings() {
   })
   .catch(reason => console.error("Ошибка чтения файла конфигурации: %o", reason));
 }
+
 /** Сохранение настроек программы */
 export async function saveSettings(form: FormData, refresh: boolean = false) {
   let settings = {};
-  form.forEach((v, k) => {
-    const value = ["adam.ip", "db.path"].includes(k) ? v.toString() : to_number(v);
-    assign(settings, k.split("."), value)
+  let tt = to_number("123s");
+  console.log(tt);
+  form.forEach((v: any, k: string) => {
+    const value = to_number(v);
+    assign(settings, k.split("."), isNaN(value) ? v.toString() : value)
   });
   writeTextFile(SETTINGS_PATH, JSON.stringify(settings, null, 2))
   .then(() => {

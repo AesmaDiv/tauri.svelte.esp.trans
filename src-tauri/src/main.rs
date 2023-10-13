@@ -2,31 +2,29 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 pub mod commands;
-pub mod commands_db;
-pub mod commands_com;
-pub mod commands_adam;
 pub mod database;
 pub mod hardware;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            commands::logging,
-            commands::file_exists,
-            commands_db::read_testlist,
-            commands_db::read_record,
-            commands_db::read_dictionary,
-            commands_db::write_record,
-            commands_db::write_dictionary,
-            commands_db::delete_record,
-            commands_db::delete_dictionary,
-            commands_com::serial_open,
-            commands_com::serial_close,
-            commands_com::serial_write,
-            commands_com::serial_request,
-            commands_adam::read_adam,
-            commands_adam::write_adam,
-          ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+      .invoke_handler(tauri::generate_handler![
+        commands::logging,
+        commands::file_exists,
+        database::read_testlist,
+        database::read_record,
+        database::read_dictionary,
+        database::write_record,
+        database::write_dictionary,
+        database::delete_record,
+        database::delete_dictionary,
+        hardware::com_open,
+        hardware::com_close,
+        hardware::com_write,
+        hardware::com_request,
+        hardware::adam_read,
+        hardware::adam_write,
+        hardware::adam_write_bytes,
+      ])
+      .run(tauri::generate_context!())
+      .expect("error while running tauri application");
 }

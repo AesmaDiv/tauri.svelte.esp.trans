@@ -12,10 +12,11 @@ export const CONFIG = {
     pulling_rate: 250,
     digital: {
       lamp      : { slot: 1, channel: 0 },
-      engine    : { slot: 1, channel: 1 },
-      thrust    : { slot: 1, channel: 2 },
-      valve     : { slot: 1, channel: 3 },
-      alarm     : { slot: 1, channel: 4 },
+      rohm_ab   : { slot: 1, channel: 1 },
+      rohm_bc   : { slot: 1, channel: 2 },
+      rohm_ca   : { slot: 1, channel: 3 },
+      start     : { slot: 1, channel: 4 },
+      print     : { slot: 1, channel: 5 },
     },
     analog: {
       press_sys : { slot: 0, channel: 1, d_range: 0xffff, offset: 0, v_range: 10, coeff: 1.1 },

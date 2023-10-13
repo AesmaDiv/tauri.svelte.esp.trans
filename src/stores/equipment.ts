@@ -17,7 +17,7 @@ export let DSTATES: Writable<DigitalStates> = writable(new DigitalStates());
 let tmr_adam : NodeJS.Timer;
 /** Переключение опроса Adam */
 export function switchAdamReading() {
-  const rate = get(SETTINGS).adam.pulling_rate;
+  const rate = get(SETTINGS).adam.rate;
   if (!tmr_adam) tmr_adam = setInterval(() => updateAdamData(), rate);
   else {
     clearInterval(tmr_adam);
@@ -34,7 +34,7 @@ export function switchAdamReading() {
 /** Обновление данных с Adam */
 function updateAdamData() {
   const settings = get(SETTINGS);
-  invoke("read_adam", { address: settings.adam.ip })
+  invoke("adam_read", { address: settings.adam.ip })
   .then((adam_data : IAdamData) => {
     if (!adam_data.analog && !adam_data.digital) throw "Ошибка подключения к ADAM";
     updateDStates(adam_data, settings);
@@ -43,6 +43,7 @@ function updateAdamData() {
   })
   .catch(reason => showMessage(reason, NotifierKind.ERROR));
 }
+
 /** Обновление дискретных состояний */
 function updateDStates(adam_data: IAdamData, settings: ISettings) {
   DSTATES.update(dstates => {
@@ -53,6 +54,7 @@ function updateDStates(adam_data: IAdamData, settings: ISettings) {
     return dstates;
   });
 }
+
 /** Буфферы для усреднения значений с Adam */
 const buffers = new SensorsBuffers(5);
 /** Обновление показаний датчиков */
@@ -66,6 +68,7 @@ function updateSensors(adam_data: IAdamData, settings: ISettings) {
   }
   SENSORS.update(getAverage);
 }
+
 /** Обновление усреднённых значений */
 function getAverage(sensors: Sensors) {
   for (const [key, buff] of Object.entries(buffers)) {
@@ -75,9 +78,10 @@ function getAverage(sensors: Sensors) {
 
   return sensors;
 }
+
 /** Переключение состояния двигателя */
 export async function setMotorState(state: boolean) {
-  const engine = get(DSTATES).engine_r || get(DSTATES).engine_l;
+  const engine = get(DSTATES)['engine_r'] || get(DSTATES)['engine_l'];
   // проверка текущено состояния двигателя
   if (engine === state) {
     showMessage(
@@ -103,6 +107,7 @@ export async function setMotorState(state: boolean) {
     } else showMessage("Не удалось запустить двигатель", NotifierKind.ERROR);
   });
 }
+
 export async function setPressure(state: boolean) {
   // формирование команды
   const address = get(SETTINGS).adam.ip;
@@ -119,9 +124,11 @@ export async function setPressure(state: boolean) {
     if (!result) showMessage("Не переключить нагнетатель", NotifierKind.ERROR);
   });
 }
+
 export async function setThrust(value: number) {
   console.log("Нагрузка", value);
 }
+
 function getRotation() : IAdamSource {
   const rotation = get(RECORD)['shaft_rotation'];
   if (rotation && rotation === 2)

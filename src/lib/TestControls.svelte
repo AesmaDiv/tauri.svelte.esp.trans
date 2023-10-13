@@ -28,10 +28,10 @@
 
   const onClick = (command: string) => {
     ({
-      start: () => startStop(),
-      reset: () => resetPoints(test_state),
-      save:  () => savePoints(test_state),
-    })[command]();
+      start: $$props.start || startStop,
+      reset: $$props.reset || resetPoints,
+      save:  $$props.save  || savePoints,
+    })[command](test_state);
   }
   $: [btn_start_class, btn_start_value] = $TEST_STATE === test_state ?
   ["test stop", "СТОП"] : ["test", "СТАРТ"];
