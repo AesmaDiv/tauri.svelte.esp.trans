@@ -25,7 +25,7 @@ pub fn execute<P: Params>(db_path: &str, sql: &str, params: P) -> Result<usize, 
       }
       Ok(result)
     },
-    Err(err) => Err(err)
+    Err(err) => { eprintln!("{err}"); Err(err) }
   }
 }
 /// Функция транспонилования 2-мерного массива строк

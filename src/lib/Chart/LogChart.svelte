@@ -5,14 +5,14 @@
 
   export let title : string = "";
   export let axis_x : AxisInfo = { minimum: 0, maximum: 10, ticks: 10 };
-  export let axis_y : AxisInfo = { minimum: 1, maximum: 10000000, ticks: 5 };
+  export let axis_y : AxisInfo = { minimum: 1, maximum: 1000000, ticks: 5 };
   export let marker : Point = undefined;
   export let limits : Limits = undefined;
   export let data: {[name: string]: Point[]} = {};
 
   let width : number = 0;
   let height : number = 0;
-  
+
   const logarithmic = (() => {
     let result = [];
     let i = 1
@@ -22,24 +22,24 @@
     }
     return result;
   })();
-  console.log("log divs %o", logarithmic);
+
+  const safe_val = (val: any) => isNaN(val) || val === undefined ? 0.0 : val;
 
   $: [points, coefs] = (() => {
     let coefs : Point = {
       x: width / (axis_x.maximum - axis_x.minimum),
       y: height / Math.log10(axis_y.maximum),
     };
-    
     let points = Object.entries(data).reduce((obj, [key, value]) => {
       obj[key] = value.map(point => { 
         return { 
-          x: 60 * fit(point.x, axis_x.minimum, axis_x.maximum) * coefs.x,
+          x: fit(point.x, axis_x.minimum, axis_x.maximum) * coefs.x,
           y: height - fit(Math.log10(point.y), 0, axis_y.maximum) * coefs.y
         }
       });
       return obj;
-     }, {});
-    console.log(data, coefs, points);
+    }, {});
+
     return [points, coefs]
   })();
 
@@ -90,7 +90,7 @@
       <!-- marker -->
       {#if marker }
         {@const mx = fit(marker.x, axis_x.minimum, axis_x.maximum) * coefs.x}
-        {@const my = height - fit(Math.log10(marker.y), 0, axis_y.maximum) * coefs.y}
+        {@const my = height - fit(safe_val(Math.log10(marker.y)), 0, axis_y.maximum) * coefs.y}
         <path transform="translate(0,{my})" d="M 0,0 l -5,5 v -10 z"/>
         <path transform="translate({mx},{height})" d="M 0,0 l 5,5 h -10 z"/>
         <path transform="translate({mx},{my})" d="M -5,0 h 10 M 0,-5 v 10" stroke='red'/>

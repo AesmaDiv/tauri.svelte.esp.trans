@@ -1,7 +1,8 @@
 <script lang="ts">
   import { TESTLIST, readRecord, readTestList } from "../stores/database";
   import { RECORD_SEARCH_COLUMNS } from "../database/db_tables";
-  import { haveUnsavedData, isTestRunning } from "../stores/testing";
+  import { haveUnsavedData } from "../testing/testing_hipot";
+  import { isTestRunning } from "../stores/testing";
   import TextBox from "./Components/TextBox.svelte";
   import Button from "./Components/Button.svelte";
   import { showMessage, NotifierKind } from "./Notifier/notifier";

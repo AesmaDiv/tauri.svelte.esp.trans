@@ -1,53 +1,78 @@
 <script lang="ts">
   import TestControls from "./TestControls.svelte";
+  import TextBox from "./Components/TextBox.svelte";
   import TestChart from "./TestChart.svelte";
-  import { TestStates, type HipotPoint } from "../shared/types";
-  import { AXIS_HIPOT, MARKER_HIPOT, POINTS_HIPOT as NewPoints } from "../stores/testing";
-  import { POINTS_HIPOT as OldPoints, TESTDATA } from "../stores/database";
-  import { setThrust } from "../stores/equipment";
-  import { DATANAMES } from "../configs/cfg_hipot";
-  import { HEADERS_CHARTS } from "../configs/cfg_localization";
+  import { TestStates, Phases, HipotModes, HipotPoint, type HipotData } from "../shared/types";
+  import { isEmpty } from "../shared/funcs";
+  import { MODE, switchTest, POINTS,
+           AXIES, MARKER, savePoints, fillPointsRandom } from "../testing/testing_hipot";
+  import { TESTDATA, POINTS_HIPOT } from "../stores/database";
+  import { DATANAMES as fields } from "../configs/cfg_hipot";
+  import { HDR_CHARTS } from "../configs/cfg_localization";
+  import type { Point } from "./Chart/chart";
 
   const eng = false;
-  const names = {x: 'time', y1: 'power', y2: 'temper'};
-  const titles = HEADERS_CHARTS[eng].power;
-
-  let thrust = 0;
-  function onChange(event: Event) {
-    let input = event.target as HTMLInputElement;
-    thrust = input.valueAsNumber;
-    if (event.type === 'change') setThrust(thrust);
+  const names = {x: 'time', y1: 'resist', y2: ''};
+  const titles = HDR_CHARTS[eng].hipot;
+  const mode = [
+    { id: HipotModes.H0, name: "ВВ-0" },
+    { id: HipotModes.L0, name: "НВ-0" },
+    { id: HipotModes.HL, name: "ВВ-НВ" },
+  ];
+  const setHipotMode = (mode: HipotModes) => {
+    MODE.set(mode || undefined);
+    console.log($MODE);
   }
 
-  $: points = (() => {
-    let result = { h0:[], hl: [], l0: [] };
-    let volt = 0, amps = 0, ind = 0;
-    while (ind < 65) {
-      volt = $TESTDATA.hipot(ind);
-      amps = $TESTDATA.hipot(ind+1);
-      ind += 2;
-      if (amps === 0) continue;
-      if (ind < 16) result.h0.push({x: 6.65 * result.h0.length, y: volt/amps })
-      else if (ind < 32) result.hl.push({x: 6.65 * result.hl.length, y: volt/amps })
-      else result.l0.push({x: 6.65 * result.l0.length, y: volt/amps })
+  function calcAbsorb(points: Point[]): number {
+    console.log(points);
+    return (points.length === 0 || points[0].y === 0) ?
+      0 :
+      points[points.length - 1].y / points[0].y;
+  }
+
+  $: [points, absorb, u_start, u_max] = (() => {
+    let points = { h0:[], hl: [], l0: [] };
+    let absorb = { h0: 0, hl: 0, l0: 0};
+    let [u_start, u_max] = [0, 0];
+    if (!isEmpty($POINTS_HIPOT)) {
+      console.log("notEmpty");
+      Object.keys(points).forEach(name => {
+        const p = $POINTS_HIPOT[name];
+        points[name] = p.map(point => { return { x: point.time, y: point.resist }});
+        absorb[name] = p.length === 0 || p[0].resist === 0 ? 0 :
+          p[p.length - 1].resist / p[0].resist
+      });
+    } else {
+      // let volt = 0, amps = 0, ind = 0;
+      // while (ind < 65) {
+      //   volt = $TESTDATA.hipot(ind);
+      //   amps = $TESTDATA.hipot(ind+1);
+      //   ind += 2;
+      //   if (amps === 0) continue;
+      //   if (ind < 16) points.h0.push({x: 6.65 * points.h0.length, y: volt/amps })
+      //   else if (ind < 32) points.hl.push({x: 6.65 * points.hl.length, y: volt/amps })
+      //   else points.l0.push({x: 6.65 * points.l0.length, y: volt/amps })
+      // }
     }
-
-    // let p = $NewPoints || $OldPoints;
-    // let result = Object.entries(p).reduce((obj, [key, val]) => {
-    //   obj[key] = val.map((point: HipotPoint) => {
-    //     return { x: point.time, y: point.voltage / point.current }
-    //   });
-    //   return obj;
-    // }, {});
-    console.log("points %o", result);
-    return result;
+    console.log("points =>",points)
+    return [points, absorb, u_start, u_max];
   })();
-
 </script>
 
 <div class="root">
-  <TestControls test_state={TestStates.HIPOT} fields={DATANAMES}/>
-  <TestChart {titles} axies={$AXIS_HIPOT} logchart {points} {names} markers={$MARKER_HIPOT}/>
+  <TestControls test_state={TestStates.HIPOT} {fields} data={$POINTS} start={switchTest} save={savePoints} reset={fillPointsRandom}>
+    <div style="height: 100%; padding-top: 2em;">
+      <TextBox name={'hipot_absorb'}  title="Коэффициент абсорбции"      value={absorb[$MODE]}/>
+      <TextBox name={'hipot_u_start'} title="Начальное напряжение, В"    value={u_start}/>
+      <TextBox name={'hipot_u_max'}   title="Максимальное напряжение, В" value={u_max}/>
+      <TextBox name={'hipot_mode'}    title="Режим испытания"            value={$MODE}
+        select required options={mode} optionKey="name" optionValue="id"
+        onChange={setHipotMode}
+      />
+    </div>
+  </TestControls>
+  <TestChart {titles} axies={$AXIES} logchart {points} {names} marker={$MARKER}/>
 </div>
 
 <style>

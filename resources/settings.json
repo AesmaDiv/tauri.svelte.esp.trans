@@ -76,76 +76,116 @@
       }
     },
     "analog": {
-      "press_sys": {
+      "i_xx_a": {
         "slot": 0,
-        "channel": 3,
+        "channel": 0,
         "d_range": 65535,
         "offset": 0,
-        "v_range": 61.182,
+        "v_range": 5,
         "coeff": 1
       },
-      "press_top": {
+      "i_xx_b": {
         "slot": 0,
         "channel": 1,
         "d_range": 65535,
         "offset": 0,
-        "v_range": 6.1183,
-        "coeff": 1.17
+        "v_range": 5,
+        "coeff": 1
       },
-      "press_btm": {
+      "i_xx_c": {
         "slot": 0,
         "channel": 2,
         "d_range": 65535,
         "offset": 0,
-        "v_range": 6.1183,
-        "coeff": 1.21
+        "v_range": 5,
+        "coeff": 1
       },
-      "torque": {
-        "slot": 0,
+      "u_hi_a": {
+        "slot": 1,
+        "channel": 3,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 500,
+        "coeff": 1
+      },
+      "u_hi_b": {
+        "slot": 1,
         "channel": 4,
         "d_range": 65535,
         "offset": 0,
-        "v_range": 50,
-        "coeff": 0.75
-      },
-      "temper": {
-        "slot": 4,
-        "channel": 6,
-        "d_range": 65535,
-        "offset": 0,
-        "v_range": 1370,
+        "v_range": 500,
         "coeff": 1
       },
-      "speed": {
+      "u_hi_c": {
+        "slot": 1,
+        "channel": 5,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 500,
+        "coeff": 1
+      },
+      "u_lo_a": {
         "slot": 1,
         "channel": 0,
         "d_range": 65535,
         "offset": 0,
-        "v_range": 65535,
+        "v_range": 500,
+        "coeff": 1
+      },
+      "u_lo_b": {
+        "slot": 1,
+        "channel": 1,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 500,
+        "coeff": 1
+      },
+      "u_lo_c": {
+        "slot": 1,
+        "channel": 2,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 500,
         "coeff": 1
       }
     }
   },
   "com": {
     "hipot": {
-      "name": "COM4",
+      "name": "COM3",
       "rate": 112500
     },
     "rohms": {
       "name": "COM8",
-      "rate": 9600
+      "rate": 19200
     }
   },
   "test": {
-    "test_press": {
-      "duration": 360,
-      "pulling_rate": 100,
-      "points_count": 180
+    "hipot": {
+      "duration": 60,
+      "pulling_rate": 250,
+      "points_count": 60
     },
-    "test_power": {
-      "duration": 1200,
-      "pulling_rate": 1000,
-      "points_count": 10
+    "rohms": {
+      "duration": 60,
+      "pulling_rate": 0,
+      "points_count": 3
+    },
+    "ampxx": {
+      "duration": 60,
+      "pulling_rate": 250,
+      "points_count": 0
+    },
+    "coeff": {
+      "duration": 60,
+      "pulling_rate": 250,
+      "points_count": 0
     }
+  },
+  "di30r": {
+    "control": 1,
+    "voltage": 2,
+    "amps_hi": 3,
+    "amps_lo": 4
   }
 }

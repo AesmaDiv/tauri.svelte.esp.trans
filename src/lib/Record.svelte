@@ -28,7 +28,7 @@
   function checkRequired(record: {}) : boolean {
     if (!record) return false;
     let result = RECORD_COLUMNS.filter(item => item.required).every(item => !!record[item.name]);
-    if (!result) message('Не все необходимые поля заполнены', 'Внимание');
+    if (!result) message('Не все необходимые поля заполнены', 'НВимание');
     return result;
   }
 
@@ -71,8 +71,8 @@
     height: fit-content;
     overflow: visible;
     padding-top: 10px;
-    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(11, 1fr);
+    grid-template-columns: repeat(4, 250px);
     column-gap: 0.5em;
     row-gap: 0.5em;
   }

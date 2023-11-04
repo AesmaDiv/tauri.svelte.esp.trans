@@ -3,13 +3,14 @@ extern crate tauri;
 extern crate com_helper;
 
 use adam::models::{Data, Analog, Digital, AdamData, Endian};
-use adam::{read, write, write_bytes};
+use adam::{read, write, write_bytes, crc16};
 use com_helper::ComHelper;
 use once_cell::sync::OnceCell;
 
 
 static mut SERIAL: OnceCell<ComHelper> = OnceCell::new();
 static mut WINDOW: OnceCell<tauri::Window> = OnceCell::new();
+const LOGGED: bool = false;
 
 
 #[tauri::command]
@@ -36,23 +37,34 @@ pub fn adam_write(address: &str, data: Data, slottype: &str) -> bool {
   }
 }
 #[tauri::command]
-pub fn adam_write_bytes(address: &str, bytes: &[u8]) -> bool {
-  write_bytes(address, bytes).is_ok()
+pub fn adam_write_bytes(address: &str, bytes: Vec<u8>) -> bool {
+  if let Err(err) = write_bytes(address, &bytes) {
+    eprintln!("Adam::write_bytes::!!!Error {err}");
+    return false;
+  }
+  true
+}
+#[tauri::command]
+pub fn add_crc16(bytes: Vec<u8>) -> Vec<u8> {
+  let crc = crc16(&bytes).to_be_bytes();
+  return [bytes.clone(), crc.to_vec()].concat();
 }
 
 #[tauri::command]
 pub fn com_open(wnd: tauri::Window, name: &str, rate: u32, do_listen: bool) -> bool {
   unsafe {
-    let mut com = ComHelper::new(name, rate);
-    if com.open() {
-      if do_listen { com.listen(Box::new(on_received)) }
-      SERIAL.take();
-      WINDOW.take();
-      SERIAL.set(com);
-      WINDOW.set(wnd).unwrap();
-      return true;
+    if let Some(mut com) = SERIAL.take().or(Some(ComHelper::new(name, rate))) {
+      com.close();
+      if com.open() {
+        if do_listen { com.listen(Box::new(on_received)) }
+        WINDOW.take();
+        SERIAL.set(com);
+        WINDOW.set(wnd).unwrap();
+
+        return true;
+      }
     }
-    return false;
+    false
   }
 }
 
@@ -69,6 +81,7 @@ pub fn com_write(bytes: Vec<u8>) -> bool {
     if let Some(com) = SERIAL.get_mut() {
       return com.write(&bytes) > 0;
     }
+    eprintln!("COM_WRITE: Socket not found.");
     return false;
   }
 }
@@ -79,6 +92,7 @@ pub fn com_request(bytes: Vec<u8>) -> Vec<u8> {
     if let Some(com) = SERIAL.get_mut() {
       return com.write_read(&bytes);
     }
+    eprintln!("COM_REQUEST: Socket not found.");
     return Vec::new();
   }
 }
@@ -88,7 +102,7 @@ fn on_received(data: Vec<u8>) {
     if let Some(wnd) = WINDOW.get() {
       #[derive(Clone, serde::Serialize)]
       struct Payload { data: Vec<u8>, }
-      println!("Bytes received: {:?}", data);
+      if LOGGED { println!("Bytes received: {:?}", data) }
       wnd.emit("serial_incoming", Payload { data }).unwrap();
     }
   }

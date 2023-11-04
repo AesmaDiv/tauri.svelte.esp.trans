@@ -4,8 +4,8 @@ export const CONFIG = {
     path: "D:\\Projects\\Tauri\\tauri.svelte.esp.trans\\resources\\trans.sqlite"
   },
   test: {
-    test_press  : { duration: 180,  pulling_rate: 250 , points_count: 10 },
-    test_power  : { duration: 1500, pulling_rate: 1000, points_count: 10 }
+    ampxx : { duration: 180,  pulling_rate: 250 , points_count: 10 },
+    hipot : { duration: 1500, pulling_rate: 1000, points_count: 10 }
   },
   adam: {
     ip: "0.0.0.0",

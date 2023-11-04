@@ -1,6 +1,4 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { SETTINGS, readSettings } from '../stores/settings';
-import { get } from 'svelte/store';
 
 
 export const DBHelper = {

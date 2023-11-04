@@ -6,6 +6,7 @@
   import Slider from "./lib/Components/Slider.svelte";
   import RecordInfo from "./lib/Record.svelte";
   import TestHipot from "./lib/TestHipot.svelte";
+  import TestIxx from "./lib/TestIxx.svelte";
   import Protocol from "./lib/Protocol.svelte";
   import AppHeader from "./lib/AppHeader.svelte";
   import Notifier from "./lib/Notifier/Notifier.svelte";
@@ -42,6 +43,9 @@
     </Slider>
     <Slider title="Измерение сопротивления изоляции  :" bind:group={slider_group} {style}>
       <div class="slider-content"><TestHipot /></div>
+    </Slider>
+    <Slider title="Ток холостого хода :" bind:group={slider_group} {style}>
+      <div class="slider-content"><TestIxx /></div>
     </Slider>
     <Slider title="Протокол :" bind:group={slider_group} {style}>
       <div class="slider-content protocol"><button style="width: 200px;" on:mousedown={printProtocol}>Print</button><Protocol/></div>

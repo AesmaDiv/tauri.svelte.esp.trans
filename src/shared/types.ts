@@ -3,6 +3,8 @@ export enum TestStates {
   IDLE  = '',
   ROHMS = 'test_rohms',
   HIPOT = 'test_hipot',
+  AMPXX = 'test_ampxx',
+  COEFF = 'test_coeff',
 }
 /** Тип точки графика */
 export class Point {
@@ -14,10 +16,11 @@ export enum PhasesConnection {
   NONE = 0,
   STAR = 1,
   NEUTRAL = 2,
+  TRIANGLE = 3,
 }
-/** Текущие фазы для измерения омического сопротивления */
+/** Режим измерения омического сопротивления */
 export enum Phases {
-  NONE = '',
+  NONE = 'none',
   AB = 'rohm_ab',
   BC = 'rohm_bc',
   CA = 'rohm_ca',
@@ -25,44 +28,47 @@ export enum Phases {
   B0 = 'rohm_b0',
   C0 = 'rohm_c0',
 }
-/** Точка омического сопротивления */
-export class ROhmPoint {
+/** Точка значений по фазам */
+export class PhasesPoint {
   /** ом.сопротивление фазы A */
   phase_a: number = 0;
   /** ом.сопротивление фазы B */
   phase_b: number = 0;
   /** ом.сопротивление фазы C */
   phase_c: number = 0;
+
+  constructor(...[a, b, c]: number[]) {
+    this.phase_a = a;
+    this.phase_b = b;
+    this.phase_c = c;
+  }
 }
 /** Тип данных об омическом сопротивлении для различных положений анфапф */
 export type ROhmData = {
-  [name: string]: ROhmPoint
+  [name: string]: PhasesPoint
 };
-/** Тип точки для измерения потребляемой мощности */
-export type HipotPoint = {
+
+/** Режим высоковольтного испытания */
+export enum HipotModes {
+  H0   = 'h0',
+  L0   = 'l0',
+  HL   = 'hl',
+}
+/** Класс точки для измерения потребляемой мощности */
+export class HipotPoint {
   /** время */
-  time : number,
-  /** потребляемая мощность */
-  voltage : number,
-  /** температура */
-  current : number,
+  time    : number = 0;
+  /** напряжение */
+  voltage : number = 0;
+  /** ток утечки */
+  current : number = 0;
+  /** сопротивление */
+  resist  : number = 0;
 }
 /** Тип данных об высоковольтном испытании */
-export type HipotData = {[name: string]: HipotPoint[]};
-export interface ISealtype {
-  name      : string,
-  producer  : string,
-  date      : string,
-  rpm       : number,
-  limit_thr : number,
-  limit_tmp : number,
-  limit_pwr : number,
-  limit_top : string,
-  limit_btm : string,
-  do_press  : boolean,
-  do_thrust : boolean,
-  rotation  : number,
-}
+export type HipotData = {[mode: string]: HipotPoint[]};
+
+
 export interface IMarkerPress {
   press_top : Point,
   press_btm : Point
@@ -96,30 +102,20 @@ export class DigitalStates {
 /** Класс данных с датчиков */
 export class Sensors {
   time      : number = 0;
-  press_sys : number = 0;
-  press_top : number = 0;
-  press_btm : number = 0;
-  speed     : number = 0;
-  torque    : number = 0;
-  temper    : number = 0;
-  power     : number = 0;
+  voltage   : number = 0;
+  current   : number = 0;
+  resist    : number = 0;
 };
 /** Класс буферов данных с датчиков */
 export class SensorsBuffers {
-  press_sys : VBuffer;
-  press_top : VBuffer;
-  press_btm : VBuffer;
-  speed     : VBuffer;
-  torque    : VBuffer;
-  temper    : VBuffer;
+  voltage   : VBuffer;
+  current   : VBuffer;
+  resist    : VBuffer;
 
   constructor(size: number) {
-    this.press_sys = new VBuffer(size);
-    this.press_top = new VBuffer(size);
-    this.press_btm = new VBuffer(size);
-    this.speed     = new VBuffer(size);
-    this.torque    = new VBuffer(size);
-    this.temper    = new VBuffer(size);
+    this.voltage = new VBuffer(size);
+    this.current = new VBuffer(size);
+    this.resist  = new VBuffer(size);
   }
 };
 
@@ -140,8 +136,10 @@ export interface ISettings {
     path: string;
   },
   test: {
-    test_press: ITiming,
-    test_power: ITiming
+    hipot: ITiming,
+    rohms: ITiming,
+    ampxx: ITiming,
+    coeff: ITiming,
   },
   adam: {
     ip: string,
@@ -150,6 +148,12 @@ export interface ISettings {
     analog: { [name: string] : IAdamSourceParams }
   },
   com: { [key: string]: IComParams }
+  di30r: {
+    control: number,
+    voltage: number,
+    amps_hi: number,
+    amps_lo: number
+  }
 }
 
 

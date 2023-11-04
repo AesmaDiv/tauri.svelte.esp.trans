@@ -1,14 +1,16 @@
 /*
-  !!!ВАЖНО:
-  После изменения тут внести правки в описании
+  [TODO:] !!!ВАЖНО:
+  После изменения тут НВести правки в описании
   интерфейса ISettings в файле shared\types.ts
 */
 
 /** Описание таблицы параметров испытаний */
 export const TEST = {
   ROWS: [
-    { name: "test.test_press", label: "Давление диафрагм"},
-    { name: "test.test_power", label: "Потребляемая мощность"},
+    { name: "test.hipot",   label: "Высоковольтное испытание"},
+    { name: "test.rohms",   label: "Омическое сопротивление"},
+    { name: "test.ampxx",   label: "Ток холостого хода"},
+    { name: "test.coeff",   label: "Коэффициент трансформации"},
   ],
   COLUMNS: [
     { name: "duration",     label: "T, сек", parse_func: parseInt},
@@ -16,15 +18,31 @@ export const TEST = {
     { name: "points_count", label: "N, тчк", parse_func: parseInt},
   ],
 };
+/** Коэфициенты значений Di30R */
+export const DI30R = {
+  ROWS: [
+    { name: "di30r",        label: "Коэффициенты"},
+  ],
+  COLUMNS: [
+    { name: "control",     label: "U упр", parse_func: parseFloat},
+    { name: "voltage",     label: "U вых", parse_func: parseFloat},
+    { name: "amps_hi",     label: "I выс", parse_func: parseFloat},
+    { name: "amps_lo",     label: "I низ", parse_func: parseFloat},
+  ],
+
+}
 /** Описание таблицы параметров аналоговых слотов */
 export const ANALOG = {
   ROWS: [
-    { name: 'adam.analog.press_sys', label: 'Давление в системе' },
-    { name: 'adam.analog.press_top', label: 'Давление верхней диаф' },
-    { name: 'adam.analog.press_btm', label: 'Давление нижней диаф' },
-    { name: 'adam.analog.torque',    label: 'Момент' },
-    { name: 'adam.analog.temper',    label: 'Температура' },
-    { name: 'adam.analog.speed',     label: 'Скорость' },
+    { name: 'adam.analog.i_xx_a', label: 'I хх A' },
+    { name: 'adam.analog.i_xx_b', label: 'I хх B' },
+    { name: 'adam.analog.i_xx_c', label: 'I хх C' },
+    { name: 'adam.analog.u_hi_a', label: 'U ВВ A' },
+    { name: 'adam.analog.u_hi_b', label: 'U ВВ B' },
+    { name: 'adam.analog.u_hi_c', label: 'U ВВ C' },
+    { name: 'adam.analog.u_lo_a', label: 'U НВ A' },
+    { name: 'adam.analog.u_lo_b', label: 'U НВ B' },
+    { name: 'adam.analog.u_lo_c', label: 'U НВ C' },
   ],
   COLUMNS: [
     { name: 'slot',    label: 'слот',     parse_func: parseInt },

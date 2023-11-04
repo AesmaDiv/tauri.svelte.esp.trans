@@ -4,6 +4,8 @@ import { Sensors, SensorsBuffers, type IAdamData, VBuffer, type IAdamSource, Dig
 import { SETTINGS } from "./settings";
 import { RECORD } from "./database";
 import { NotifierKind, showMessage } from "../lib/Notifier/notifier";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { string2bytes, bytes2string, sleep } from "../shared/funcs";
 
 
 /** Состояние чтения с ADAM */
@@ -66,72 +68,6 @@ function updateSensors(adam_data: IAdamData, settings: ISettings) {
       item.coeff
     )
   }
-  SENSORS.update(getAverage);
+  // SENSORS.update(getAverage);
 }
 
-/** Обновление усреднённых значений */
-function getAverage(sensors: Sensors) {
-  for (const [key, buff] of Object.entries(buffers)) {
-    sensors[key] = (buff as VBuffer).getAverage();
-  }
-  sensors.power = sensors.torque * sensors.speed * 0.000104;//5252;
-
-  return sensors;
-}
-
-/** Переключение состояния двигателя */
-export async function setMotorState(state: boolean) {
-  const engine = get(DSTATES)['engine_r'] || get(DSTATES)['engine_l'];
-  // проверка текущено состояния двигателя
-  if (engine === state) {
-    showMessage(
-      engine ? "Двигатель УЖЕ запущен" : "Двигатель УЖЕ остановлен",
-      NotifierKind.SUCCESS
-    );
-    return;
-  }
-  // формирование команды
-  const address = get(SETTINGS).adam.ip;
-  const rotation = getRotation();
-  const data = {
-    slot: rotation.slot,
-    channel:  rotation.channel,
-    value: state ? 0xff00 : 0x0000
-  };
-  const slottype = "digital";
-  // отправка команды
-  invoke('write_adam', { address, data, slottype })
-  .then(result => {
-    if (result) {
-      showMessage(engine ? "Двигатель остановлен" : "Двигатель запущен", NotifierKind.SUCCESS);
-    } else showMessage("Не удалось запустить двигатель", NotifierKind.ERROR);
-  });
-}
-
-export async function setPressure(state: boolean) {
-  // формирование команды
-  const address = get(SETTINGS).adam.ip;
-  const pressure = get(SETTINGS).adam.digital.valve;
-  const data = {
-    slot: pressure.slot,
-    channel:  pressure.channel,
-    value: state ? 0xff00 : 0x0000
-  };
-  const slottype = "digital";
-  // отправка команды
-  invoke('write_adam', { address, data, slottype })
-  .then(result => {
-    if (!result) showMessage("Не переключить нагнетатель", NotifierKind.ERROR);
-  });
-}
-
-export async function setThrust(value: number) {
-  console.log("Нагрузка", value);
-}
-
-function getRotation() : IAdamSource {
-  const rotation = get(RECORD)['shaft_rotation'];
-  if (rotation && rotation === 2)
-    return get(SETTINGS).adam.digital.engine_l;
-  return get(SETTINGS).adam.digital.engine_r;
-}

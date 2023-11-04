@@ -3,19 +3,18 @@ import { DBHelper} from "../database/DatabaseHelper";
 import { deserializePoints, getTestData, serializePoints } from "../database/db_funcs";
 import type { Limits } from "../lib/Chart/chart";
 import { getCurrentDate } from "../shared/funcs";
-import { TestStates, type TestData, type ROhmData, type HipotData } from "../shared/types";
+import { TestStates, type TestData, type ROhmData, type HipotData, PhasesConnection } from "../shared/types";
 import { SETTINGS } from "./settings";
 import { NotifierKind, showMessage } from "../lib/Notifier/notifier";
 
 
 export let TESTLIST: Writable<any[]> = writable([]);
 export let RECORD: Writable<{}> = writable({});
-/** Результат измерения омического сопротивления из БД */
-export let POINTS_ROHMS: Writable<ROhmData> = writable({} as ROhmData);
-/** Результат высоковольтного испытания из БД */
 export let POINTS_HIPOT: Writable<HipotData> = writable({} as HipotData);
+export let POINTS_ROHMS: Writable<ROhmData> = writable({} as ROhmData);
 export let TESTDATA: Writable<TestData> = writable(undefined);
-export let LIMITS_PRESS: Writable<Limits[]> = writable([]);
+export let SWITCHES: Writable<[number, number]> = writable([0,0]);
+export let CONNECTION: Writable<PhasesConnection> = writable(PhasesConnection.NONE);
 
 
 let db_path = "";
@@ -47,10 +46,21 @@ export async function readRecord(id: number) {
   console.warn('ЗАПИСЬ загружена\n%o', record);
   
   // получение точек испытаний
-  let points = getTestData(record);
-  TESTDATA.set(points);
-  POINTS_ROHMS.set(deserializePoints(record[TestStates.ROHMS]));
-  console.warn('ТОЧКИ ИСПЫТАНИЙ загружены\n%o', points);
+  let points_rawdata = getTestData(record);
+  let points_hipot = deserializePoints(record[TestStates.HIPOT]);
+  let points_rohms = deserializePoints(record[TestStates.ROHMS]);
+  console.warn('ТОЧКИ ИСПЫТАНИЙ загружены\n%o', points_rawdata);
+  let last_switch = Object.keys(points_rohms).sort().pop()
+  if (last_switch) {
+    let switches = last_switch.split("-").map(x => parseInt(x));
+    SWITCHES.set(switches ? [switches[0], switches[1]] : [0,0]);
+  }
+  TESTDATA.set(points_rawdata);
+  CONNECTION.set(record['n_connection']);
+  POINTS_HIPOT.set(points_hipot);
+  POINTS_ROHMS.set(points_rohms);
+
+  showMessage(`Запись №${id} загружена`, NotifierKind.NORMAL);
 }
 
 /** Запись данных о точках в БД */
@@ -65,7 +75,7 @@ export async function updatePoints(test_state: TestStates, points_data: ROhmData
   } else { console.warn('Отсутствует ID записи') }
 }
 
-/** Запись данный об объекте в БД */
+/** Запись данных об объекте в БД */
 export async function updateRecord(record: Object) {
   // обновление даты на текущую
   if (!record['datetest']) record['datetest'] = getCurrentDate();
@@ -84,14 +94,3 @@ export async function updateRecord(record: Object) {
 export function resetRecord() {
   RECORD.set({});
 }
-
-/** Обновление пределов давления диафрагм */
-function updateLimitsPress(sealtype) {
-  if (!sealtype) return;
-  let press_top = sealtype['limit_top']?.split(";").map(parseFloat);
-  let press_btm = sealtype['limit_btm']?.split(";").map(parseFloat);
-  let limit_top = press_top && { lo: press_top[0], hi: press_top[1] }
-  let limit_btm = press_btm && { lo: press_btm[0], hi: press_btm[1] }
-  LIMITS_PRESS.set([limit_top, limit_btm]);
-}
-

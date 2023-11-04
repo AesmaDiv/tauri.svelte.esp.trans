@@ -74,7 +74,7 @@ impl SerialHandler {
       self.print_state(&result, ["READY", "NOT ready"]);
       return result;
     }
-    /** Проверка активно ли чтение с сокета */
+    /** Проверка актиНВо ли чтение с сокета */
     pub fn is_listening(&self) -> bool {
       let mut result = false;
       if let Ok(guard) = self.is_reading.lock() {
@@ -110,7 +110,7 @@ impl SerialHandler {
     }
     /** Запуск прослушивания сокета */
     pub fn listen(&mut self, callback: Box<fn(Vec<u8>)>) {
-      // проверки готовности
+      // проверки готоНВости
       if !self.is_ready() { return; }
       if self.is_listening() { return; }
       // запуск прослушивания

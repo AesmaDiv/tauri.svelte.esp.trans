@@ -25,8 +25,6 @@ export async function readSettings() {
 /** Сохранение настроек программы */
 export async function saveSettings(form: FormData, refresh: boolean = false) {
   let settings = {};
-  let tt = to_number("123s");
-  console.log(tt);
   form.forEach((v: any, k: string) => {
     const value = to_number(v);
     assign(settings, k.split("."), isNaN(value) ? v.toString() : value)

@@ -37,10 +37,18 @@ export function getCurrentDate() {
   return new Date().toLocaleString("ru").replace(',','');
 }
 /** Перевести число в дату-время */
-export function decimal2time(minutes_decimal) {
-  let result = new Date(null)
-  result.setSeconds(minutes_decimal * 60);
-  return result.toISOString().slice(11,19);
+export function decimal2time(time: {hours?: number, minutes?: number, seconds?:number, millisecs?:number}) {
+  let slice_ind = time.millisecs ? 23 : 19;
+
+  time.hours = time.hours || 0;
+  time.minutes = time.hours * 60 + (time.minutes || 0);
+  time.seconds = time.minutes * 60 + (time.seconds || 0);
+  time.millisecs = time.seconds * 1000 + (time.millisecs || 0);
+
+  let result = new Date(0)
+  result.setMilliseconds(time.millisecs);
+
+  return result.toISOString().slice(11,slice_ind);
 }
 /** Конвертация байтового массива в строку */
 export function bytes2string(bytes) : string {
@@ -52,12 +60,51 @@ export function string2bytes(str: string) : number[] {
   for (let byte of new TextEncoder().encode(str)) result.push(byte);
   return result;
 }
+export function isEmpty(obj: object): boolean {
+  return Object.values(obj).length === 0;
+}
+/** Расчёт CRC16 суммы */
+export function crc16(bytes: Uint8Array) : number {
+  let crc = 0xFFFF;
+  for (let byte of bytes) {
+    crc ^= byte;
+    for (const i of Array(8).keys()) {
+      if ((crc & 0x0001) != 0) {
+        crc >>= 1;
+        crc ^= 0xA001;
+      } else crc >>=1;
+    }
+  }
+  crc = ((crc & 0xFF) << 8) | ((crc >> 8) & 0xFF);
+  return crc;
+}
+/** Добавление CRC16 суммы */
+export function addCRC16(bytes: Uint8Array) : Uint8Array {
+  let crc = crc16(bytes);
+  return Uint8Array.from([...bytes, crc >> 8, crc & 0xFF]);
+}
 /** Создать объект с указанными полями */
 export function createObj(keys) {
   return keys.reduce((obj, key) => {
     obj[key] = []; 
     return obj;
   }, {})
+}
+/** Соеднее значение массива */
+export function getAverage(values: number[]): number {
+  let sum = values.reduce((acc, val) => acc + val, 0);
+  return values.length ? sum / values.length : 0;
+}
+/** Максимальный дисбаланс значений массива */
+export function getDisbalance(values: number[]): number {
+  let avr = getAverage(values);
+  return Math.max(...values.map((value: number) => value / avr));
+}
+/** Расчёт максимального отклонения */
+export function getDelta(values: number[]) : number {
+  let min: number = Math.min(...values);
+  let max: number = Math.max(...values);
+  return 100 * (max - min) / max;
 }
 /** Округлить числа в массиве до указанного кол-ва знаков после запятой */
 export function roundArray(floats, decnum) {
@@ -130,4 +177,11 @@ export function recalculate([ab, bc, ca]: [number, number, number]) : [number, n
     const c = ca - a;
 
     return [a, b, c];
+}
+export const compare = {
+  "≤": (a,b) => a <= b,
+  "≥": (a,b) => a >= b,
+  "<": (a,b) => a < b,
+  ">": (a,b) => a > b,
+  "=": (a,b) => a === b,
 }

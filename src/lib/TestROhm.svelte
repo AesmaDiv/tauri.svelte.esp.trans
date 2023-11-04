@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/tauri";
   import TestControls from "./TestControls.svelte";
-  import { RECORD, updatePoints, updateRecord } from "../stores/database";
-  import { ROhmPoint, type ROhmData, TestStates, PhasesConnection } from "../shared/types";
-  import { deserializePoints, pointsToChart } from "../database/db_funcs";
+  import { POINTS_ROHMS, SWITCHES } from "../stores/database";
   import { TEST_STATE } from "../stores/testing";
-  import { CURRENT_ROHM, POINTS_ROHMS, CURRENT_SWITCH, SWITCHES, sortPoints } from "../testing/testing_rohms";
-  import { switchTest, currentClear, savePoints } from "../testing/testing_rohms";
-  import { SETTINGS } from "../stores/settings";
+  import { ROHM, SWITCH, switchTest, currentClear, sortPoints, savePoints } from "../testing/testing_rohms";
+  import { TestStates } from "../shared/types";
+  import { getDelta } from "../shared/funcs";
 
 
+  const eng = false;
   let [switch_1, switch_2]: [number, number] = [0, 0];
   let selected: HTMLInputElement;
   // let position: string;
@@ -20,11 +18,11 @@
     if (selected === radio) {
       selected.checked = false;
       selected = undefined;
-      CURRENT_SWITCH.set("");
+      SWITCH.set("");
     } else {
       if (selected) selected.checked = false;
       selected = radio;
-      CURRENT_SWITCH.set(radio.id);
+      SWITCH.set(radio.id);
     }
   };
 
@@ -39,12 +37,12 @@
 
   function rohmSelectNext() {
     selected && (selected.checked = false);
-    let index = getPositionIndex($CURRENT_SWITCH);
+    let index = getPositionIndex($SWITCH);
     selected = document.getElementById(getNextPosition(index)) as HTMLInputElement;
     if (selected) {
       selected.checked = true;
-      CURRENT_SWITCH.set(selected.id);
-    } else CURRENT_SWITCH.set("");
+      SWITCH.set(selected.id);
+    } else SWITCH.set("");
   }
 
   function createTable() {
@@ -61,9 +59,8 @@
       }
     });
     sortPoints(names);
-    CURRENT_SWITCH.set("1-1");
-    selected = document.getElementById($CURRENT_SWITCH) as HTMLInputElement;
-    selected && (selected.checked = true);
+    selected = document.getElementById($SWITCH) as HTMLInputElement;
+    selected && (selected.checked = false);
   }
 
   function getNextPosition(next: number) {
@@ -75,12 +72,6 @@
   function getPositionIndex(position: string) {
     let [a, b] = position.split("-").map(x => +x);
     return switch_2 * (a - 1) + b;
-  }
-
-  function getDelta(rohm: ROhmPoint) : number {
-    let min: number = Math.min(rohm.phase_a, rohm.phase_b, rohm.phase_c);
-    let max: number = Math.max(rohm.phase_a, rohm.phase_b, rohm.phase_c);
-    return 100 * (max - min) / max;
   }
 
   TEST_STATE.subscribe(test_state => {
@@ -106,7 +97,7 @@
   <table>
     <thead>
       <th class="radio"></th>
-      <th class="value">положения анцапф</th>
+      <th class="value">отпайки</th>
       <th class="value">фаза A, Ω</th>
       <th class="value">фаза B, Ω</th>
       <th class="value">фаза C, Ω</th>
@@ -115,10 +106,10 @@
     <tbody>
       <tr class="sticky">
         <td/>
-        <td><input type="text" bind:value={$CURRENT_SWITCH}></td>
-        <td><input type="text" bind:value={$CURRENT_ROHM.phase_a} readonly></td>
-        <td><input type="text" bind:value={$CURRENT_ROHM.phase_b} readonly></td>
-        <td><input type="text" bind:value={$CURRENT_ROHM.phase_c} readonly></td>
+        <td><input type="text" bind:value={$SWITCH}></td>
+        <td><input type="text" bind:value={$ROHM.phase_a} readonly></td>
+        <td><input type="text" bind:value={$ROHM.phase_b} readonly></td>
+        <td><input type="text" bind:value={$ROHM.phase_c} readonly></td>
         <td/>
       </tr>
     </tbody>
@@ -127,14 +118,14 @@
     <table>
       <tbody>
         {#each Object.entries($POINTS_ROHMS) as [name, rohm]}
-        {@const delta = getDelta(rohm)}
+        {@const delta = getDelta(Object.values(rohm))}
         <tr>
           <td class="radio"><input type="radio" id={name} on:click={currentSelect}></td>
           <td class="value" style="padding-left: 5px;">{name}</td>
           <td class="value" style="text-align: center;">{rohm.phase_a ? rohm.phase_a.toFixed(4) : ""}</td>
           <td class="value" style="text-align: center;">{rohm.phase_b ? rohm.phase_b.toFixed(4) : ""}</td>
           <td class="value" style="text-align: center;">{rohm.phase_c ? rohm.phase_c.toFixed(4) : ""}</td>
-          <td class="value" style="text-align: center;">{delta ? delta.toFixed(2) : ""}</td>
+          <td class="value" style="text-align: center;">{isNaN(delta) ? "" : delta.toFixed(2)}</td>
         </tr>
         {/each}
       </tbody>

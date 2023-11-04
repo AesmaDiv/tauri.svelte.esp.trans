@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/dialog";
   import TextBox from "./Components/TextBox.svelte";
-  import { TEST, ANALOG, DIGITAL } from "../configs/cfg_menu";
+  import { TEST, ANALOG, DIGITAL, DI30R } from "../configs/cfg_menu";
   // import { $SETTINGS } from "../configs/cfg_application";
   import { extract } from "../shared/funcs";
   import { SETTINGS } from "../stores/settings";
@@ -61,6 +61,23 @@
       </tr>
       {/each}
     </table>
+    <table class="table-test">
+      <tr>
+        <th>Di30R</th>
+        {#each DI30R.COLUMNS as col}
+        <th>{col.label}</th>
+        {/each}
+      </tr>
+      {#each DI30R.ROWS as row}
+      <tr class="table-cell">
+        <th>{row.label}</th>
+        {#each DI30R.COLUMNS as col}
+        {@const name = `${row.name}.${col.name}`}
+        <td><input {name} value={extract($SETTINGS, name)}/></td>
+        {/each}
+      </tr>
+      {/each}
+    </table>
   </div>
   <!-- ЦИФРОВЫЕ КАНАЛЫ -->
   <table class="table-digital">
@@ -88,7 +105,7 @@
       <th>{col.label}</th>
       {/each}
     </tr>
-    {#each ANALOG.ROWS as row}
+    {#each ANALOG.ROWS as row, i}
     <tr class="table-cell">
       <th>{row.label}</th>
       {#each ANALOG.COLUMNS as col}
@@ -104,7 +121,7 @@
 <style>
   form {
     width: 1000px;
-    height: 380px;
+    height: 550px;
     display: grid;
     grid-template-rows: auto 1fr;
     grid-template-columns: auto auto;
@@ -146,6 +163,7 @@
     border: 1px solid black;
   }
   th { cursor: default; }
+  td { width: 80px; }
   .table-cell {
     text-align: end;
   }
@@ -155,7 +173,7 @@
   }
   .table-cell input {
     all: unset;
-    width: 6ch;
+    width: 70px;
     padding-right: 1ch;
     background-color: beige;
   }

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, beforeUpdate } from "svelte";
   import { getInheritedColor, getInheritedBackgroundColor } from "../../shared/funcs";
-    import { validate_void_dynamic_element } from "svelte/internal";
 
   export let title: string = "Заголовок";
   export let value: any = "";
@@ -116,6 +115,8 @@
     transition-property: top, left, padding, opacity, font-size;
     transition-duration: 150ms;
     transition-timing-function: linear;
+    cursor: pointer;
+    pointer-events: none;
 
     &.downed {
       top: .3em;

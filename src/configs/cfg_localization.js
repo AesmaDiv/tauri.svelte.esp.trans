@@ -16,27 +16,21 @@ export function transliterate(text) {
   return result;
 }
 
-export const HEADERS_PROTOCOL = {
+export const HDR_PROTOCOL = {
   false: {
     title:        "ООО «ЭПУ СЕРВИС»",
     town:         "г.Когалым",
-    title_info:   "Информация по гидрозащите :",
+    title_info:   "Информация по трансформатору :",
     producer:     "Производитель :",
-    sealtype:     "Тип ГЗ :",
+    trans_type:   "Тип трансформатора :",
     serial:       "Заводской номер :",
-    lmt_pwr:      "Предел мощности :",
-    lmt_tmp:      "Предел температуры :",
-    lmt_thr:      "Предел нагрузки :",
-    connect:      "Шлицевое соединение :",
-    rotation:     "Направление вращения :",
-    exten_top:    "Вал, вылет верх :",
-    exten_btm:    "Вал, вылет низ :",
-    shaft_yeild:  "Вал, текучесть :",
-    shaft_diam:   "Вал, диаметр :",
-    runout_rad:   "Радиальное биение :",
-    runout_end:   "Торцевое биение :",
-    axial_play:   "Осевой люфт :",
-    momentum:     "Момент проворота :",
+    nom_i_hi:     "Ном.ток ВВ, А:",
+    nom_i_lo:     "Ном.ток НВ, А:",
+    nom_u_hi:     "Ном.напряжение ВВ, В:",
+    nom_u_lo:     "Ном.напряжение НВ, В:",
+    power:        "Мощность, кВт:",
+    eds:          "ЭДС, %:",
+    connect:      "Тип соединения :",
     title_test:   "Информация по испытанию :",
     datetest:     "Дата испытания :",
     daterecv:     "Дата поступления :",
@@ -46,24 +40,17 @@ export const HEADERS_PROTOCOL = {
     lease:        "Куст :",
     well:         "Скважина :",
     daysrun:      "Пробег, сут :",
-    head:         "Состояние головки :",
-    base:         "Состояние основания :",
-    coupling:     "Наличие муфты :",
-    pressure:     "Давление опрессовки, атм :",
+    oil_level:    "Масло: уровень :",
     oil_color:    "Масло: цвет :",
-    oil_water:    "Масло: вода :",
-    oil_shavs:    "Масло: стружка :",
-    oil_kvolt:    "Масло: диэл.проводимость :",
-    title_result: "Результат испытаний :",
+    oil_kvolt:    "Масло: проводимость :",
+    oil_admix:    "Масло: примеси :",
+    title_result: "Результаты испытаний :",
     note:         "Гидрозащита обкатывалась в течении 15 минут, при частоте вращения вала 2910 об/мин.",
     comments:     "Примечания :",
     operator:     "Испытатель :",
     foreman:      "Мастер :",
 
-    table_axial:  "Осевая нагрузка, кгс/см²",
-    table_power:  "Потребляемая мощность, кВт",
-    table_temp:   "Температура, °C",
-    table_time:   "Время",
+
 
     mms:          "мм",
     kgf:          "кгс/см²",
@@ -111,61 +98,90 @@ export const HEADERS_PROTOCOL = {
     operator:     "Operator :",
     foreman:      "Foreman :",
 
-    table_axial:  "Axial thrust, kgf/sm²",
-    table_power:  "Power consump., kW",
-    table_temp:   "Temperature, °C",
-    table_time:   "Time",
+  
 
     mms:          "mm",
     kgf:          "kgf/sm²",
   }
 }
-export const HEADERS_POWER = {
+export const HDR_ROHMS = {
   false: {
-    power:    'потребляемая мощность',
-    temper:   'температура',
-    axis_x:   'время, мин',
-    axis_y0:  'мощность, кВт',
-    axis_y1:  'температура, °C',
+    tab_rohm_header: "Измерение омического сопротивления",
+    tab_switch: "отпайки",
+    tab_rohm_a: "фаза A, Ω",
+    tab_rohm_b: "фаза В, Ω",
+    tab_rohm_c: "фаза С, Ω",
+    tab_disbal: "небаланс, %",
   },
   true: {
-    power:    'power consumption',
-    temper:   'temperature',
-    axis_x:   'time, min',
-    axis_y0:  'power, kW',
-    axis_y1:  'temperature, °C',
+    tab_rohm_header: "Ohmic resistance measurement",
+    tab_switch: "taps",
+    tab_rohm_a: "phase A, Ω",
+    tab_rohm_b: "phase В, Ω",
+    tab_rohm_c: "phase С, Ω",
+    tab_disbal: "disbalance, %",
   }
 }
-export const HEADERS_PRESS = {
+export const HDR_HIPOT = {
   false: {
-    top:      'верхняя диафрагма',
-    btm:      'нижняя диафрагма',
-    axis_x:   'время, сек',
-    axis_y:   'давление, кгс/см²',
+    tab_hipot_header: "Измерение сопротивления изоляции",
+    tab_rohms_header: "Измерение омического сопротивления",
+    tab_volt:  "U, В",
+    tab_amps:  "I, мА",
+    tab_ohms:  "R, МΩ",
+    tab_time:  "Время",
+    h0: 'ВН-0',
+    l0: 'НН-0',
+    hl: 'ВН-НВ',
+    polarize: 'Индекс поляризации',
+    absorb:   'Коэффициент абсорбции',
   },
   true: {
-    top:      'top diaphragm',
-    btm:      'bottom diaphragm',
-    axis_x:   'time, sec',
-    axis_y:   'pressure, kgf/sm²',
+    tab_hipot_header: "Insulation resistance measurement",
+    tab_rohm_header: "Ohmic resistance measurement",
+    tab_volt:  "U, V",
+    tab_amps:  "I, mA",
+    tab_ohms:  "R, MΩ",
+    tab_time:  "Time",
+    h0: 'HV-0',
+    hl: 'HV-LV',
+    l0: 'LV-0',
   }
 }
-export const HEADERS_CHARTS = {
+export const HDR_IXX = {
   false: {
-    press: ['График давления верхней диафрагмы', 'График давления нижней диафрагмы'],
-    power: ['График потребляемой мощности', 'График изменения температуры масла'],
+    tab_u_xx:      ['U хх AB, В', 'U хх BC, В', 'U хх CA, В', 'U сред.ХХ, А'],
+    tab_i_xx:      ['I хх A, А', 'I хх B, А', 'I хх C, А', 'I сред.ХХ, А', 'Дисбаланс токов, %','Потери, Вт'],
+    tab_u_hi:      ['U AB, В', 'U BC, В', 'U CA, В', 'U cред.ВН, В'],
+    tab_u_lo:      ['U ab, В', 'U bc, В', 'U ca, В', 'U cред.НН, В'],
+    tab_coef_tabl: 'Коэф.трансформации (табличный)',
+    tab_coef_real: 'Коэф.трансформации (измеренный)'
   },
   true: {
-    press: ['Top diaphragm pressure chart', 'Bottom diaphragm pressure chart'],
-    power: ['Power consumption chart', 'Oil temperature curve'],
-
+    tab_u_xx:      ['U idle AB, V', 'U idle BC, V', 'U idle CA, V', 'U idle avr., V'],
+    tab_i_xx:      ['I idle a, А', 'I idle b, А', 'I idle c, А', 'I idle avr., A'],
+    tab_i_xx_avr:  'Average, А',
+    tab_i_xx_bal:  'Current imbalance, %',
+    tab_i_xx_pow:  'Losses, W',
+    tab_u_hi:      ['U AB, В', 'U BC, В', 'U CA, В', 'U avr.HV, V'],
+    tab_u_lo:      ['U ab, В', 'U bc, В', 'U ca, В', 'U avr.LV, V'],
+    tab_coef_tabl: 'Transformation ratio (table)',
+    tab_coef_real: 'Transformation ratio (measured)'
+  }
+}
+export const HDR_CHARTS = {
+  false: {
+    hipot: ['График измерения сопротивления изоляции',],
+  },
+  true: {
+    hipot: ['Hipot chart',]
   }
 }
 export const COMBOS = {
   false: {
     presence: [
-      { id: 1, name: 'Нет' },
-      { id: 2, name: 'Есть'}
+      { id: 'NO', name: 'Нет' },
+      { id: 'YES', name: 'Есть'}
     ],
     state: [
       { id: 1, name: 'Новое' },
@@ -173,7 +189,8 @@ export const COMBOS = {
     ],
     connection: [
       { id: 1, name: 'Звезда' },
-      { id: 2, name: 'Звезда / N' }
+      { id: 2, name: 'Звезда + Нейтраль' },
+      { id: 3, name: 'Треугольник' },
     ],
   },
   true: {
@@ -187,19 +204,36 @@ export const COMBOS = {
     ],
     connection: [
       { id: 1, name: 'Star' },
-      { id: 2, name: 'Star / N' }
+      { id: 2, name: 'Star + Neutral' },
+      { id: 3, name: 'Triangle' },
     ],
   },
 }
-export const HEADERS_RESULT = {
+export const HDR_RESULT = {
   false: {
-    verdict : "По результатам испытаний оборубование признано",
+    hipot_h0: "R изоляции ВН-0",
+    hipot_l0: "R изоляции НН-0",
+    hipot_hl: "R изоляции ВН-НН",
+    polarize: "Индекс поляризации",
+    absorb:   "Коэффициент абсорбции",
+    rohms:    "Дисбаланс ом.сопротивления",
+    i_xx:     "Дисбаланс токов ХХ",
+    coef:     "Отклонение коэф.трансформации",
+    verdict : "По результатам испытаний оборудование признано",
     passed  : ["в допуске", "не в допуске"],
-    valid   : ["ГОДНЫМ", "НЕ ГОДНЫМ"],
+    valid   : ["НЕ ГОДНЫМ", "ГОДНЫМ"],
   },
   true: {
+    hipot_h0: "R insulation HV-0",
+    hipot_l0: "R insulation LV-0",
+    hipot_hl: "R insulation HV-LV",
+    polarize: "Polarization index",
+    absorb:   "Absorbtion coefficient",
+    rohms:    "Ohmic resistance imbalance",
+    i_xx:     "Idle currents imbalance",
+    coef:     "Ttransformation ration deviation",
     verdict : "According to the test results, the equipment was found",
     passed  : ["passed", "failed"],
-    valid   : ["VALID", "NOT VALID"],
+    valid   : ["NOT VALID", "VALID"],
   }
 }
