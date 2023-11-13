@@ -31,7 +31,7 @@
     <!-- <SvgMenu/> -->
     &#9776;
   </Button>
-  <div class="header title">OOO «ЭПУ Сервис»: Испытание Гидрозащиты</div>
+  <div class="header title">OOO «ЭПУ Сервис»: Испытание ТМПН</div>
   <Button class="btn-menu" onClick={() => onClick('adam')}
     style="background: {$ADAM_READING ? 'green' : 'red'}; color: white;"
     >

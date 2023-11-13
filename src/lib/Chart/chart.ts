@@ -8,6 +8,7 @@ export type AxisInfo = {
   ticks   : number,
   round?  : number,
   coef?   : number,
+  label?  : string,
 };
 export type Limits = {
   lo : number,

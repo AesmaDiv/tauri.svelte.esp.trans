@@ -21,7 +21,6 @@ let db_path = "";
 SETTINGS.subscribe(async (settings) => {
   // при изменении настроек ->
   // перечитать типы и список тестов
-  console.log(settings);
   if (db_path = settings.db?.path) {
     await readTestList({select_first: true});
   }

@@ -31,12 +31,12 @@
       y: height / Math.log10(axis_y.maximum),
     };
     let points = Object.entries(data).reduce((obj, [key, value]) => {
-      obj[key] = value.map(point => { 
+      obj[key] = value?.map(point => { 
         return { 
           x: fit(point.x, axis_x.minimum, axis_x.maximum) * coefs.x,
           y: height - fit(Math.log10(point.y), 0, axis_y.maximum) * coefs.y
         }
-      });
+      }) || [];
       return obj;
     }, {});
 
@@ -48,13 +48,14 @@
 <div class="root">
   <div class="title" style="{title !== "" && 'margin: 0em 0em;'}">{title}</div>
   <div class="container" bind:clientWidth={width} bind:clientHeight={height}
-    style="left: 4ch; top: {!!title ? 1.4 : 1}em">
+    style="left: 4ch; top: {!!title ? 1.4 : 1}em; bottom: 1.2em;">
   {#if width && height}
     {@const pix_x = width / axis_x.ticks}
     {@const val_x = (axis_x.maximum - axis_x.minimum) / axis_x.ticks}
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
       <!-- x axis -->
       <g class="x">
+        <text x={width / 2} y={height}>{axis_x.label}</text>
         {#each Array(axis_x.ticks + 1) as _, div}
           {@const x = pix_x * div}
           {@const v = val_x * div * (axis_x.coef ?? 1)}
@@ -64,12 +65,13 @@
       </g>
       <!-- y axis -->
       <g class="y">
+        <text x="4ch" y="-0.4em">{axis_y.label}</text>
         {#each logarithmic as div}
           {@const y = height - Math.log10(div) * coefs.y}
           <line x1={0} x2={width} y1={y} y2={y}></line>
           <text y={y} dominant-baseline="middle">
             {#if (Math.log10(div) % 1 === 0)}
-              10<tspan baseline-shift="super">{Math.log10(div)}</tspan> 
+              10<tspan baseline-shift="super" style="font-size: 70%;">{Math.log10(div)}</tspan> 
             {/if}
           </text>
         {/each}
@@ -114,7 +116,7 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    outline: 1px dashed grey;
+    outline: 1px solid gray;
     position: relative;
   }
   .title {
@@ -146,7 +148,7 @@
 	}
   line {
 		fill: none;
-		stroke: black;
+		stroke: rgb(128,128,128);
     stroke-width: 1px;
     stroke-dasharray: 2;
 	}

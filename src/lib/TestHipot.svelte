@@ -2,18 +2,18 @@
   import TestControls from "./TestControls.svelte";
   import TextBox from "./Components/TextBox.svelte";
   import TestChart from "./TestChart.svelte";
-  import { TestStates, Phases, HipotModes, HipotPoint, type HipotData } from "../shared/types";
+  import { TestStates, HipotModes } from "../shared/types";
   import { isEmpty } from "../shared/funcs";
   import { MODE, switchTest, POINTS,
            AXIES, MARKER, savePoints, fillPointsRandom } from "../testing/testing_hipot";
-  import { TESTDATA, POINTS_HIPOT } from "../stores/database";
+  import { POINTS_HIPOT } from "../stores/database";
   import { DATANAMES as fields } from "../configs/cfg_hipot";
-  import { HDR_CHARTS } from "../configs/cfg_localization";
+  import { HDR_HIPOT } from "../configs/cfg_localization";
   import type { Point } from "./Chart/chart";
 
   const eng = false;
   const names = {x: 'time', y1: 'resist', y2: ''};
-  const titles = HDR_CHARTS[eng].hipot;
+  const titles = HDR_HIPOT[eng].hipot_chart_title;
   const mode = [
     { id: HipotModes.H0, name: "ВВ-0" },
     { id: HipotModes.L0, name: "НВ-0" },
@@ -24,24 +24,24 @@
     console.log($MODE);
   }
 
-  function calcAbsorb(points: Point[]): number {
+  function calcabsorp(points: Point[]): number {
     console.log(points);
     return (points.length === 0 || points[0].y === 0) ?
       0 :
       points[points.length - 1].y / points[0].y;
   }
 
-  $: [points, absorb, u_start, u_max] = (() => {
+  $: [points, absorp, u_start, u_max] = (() => {
     let points = { h0:[], hl: [], l0: [] };
-    let absorb = { h0: 0, hl: 0, l0: 0};
+    let absorp = { h0: 0, hl: 0, l0: 0};
     let [u_start, u_max] = [0, 0];
     if (!isEmpty($POINTS_HIPOT)) {
       console.log("notEmpty");
       Object.keys(points).forEach(name => {
         const p = $POINTS_HIPOT[name];
         points[name] = p.map(point => { return { x: point.time, y: point.resist }});
-        absorb[name] = p.length === 0 || p[0].resist === 0 ? 0 :
-          p[p.length - 1].resist / p[0].resist
+        absorp[name] = p.length === 0 || p[0].resist === 0 ? 0 :
+          p[p.length - 1].resist / p[1].resist
       });
     } else {
       // let volt = 0, amps = 0, ind = 0;
@@ -56,14 +56,14 @@
       // }
     }
     console.log("points =>",points)
-    return [points, absorb, u_start, u_max];
+    return [points, absorp, u_start, u_max];
   })();
 </script>
 
 <div class="root">
   <TestControls test_state={TestStates.HIPOT} {fields} data={$POINTS} start={switchTest} save={savePoints} reset={fillPointsRandom}>
     <div style="height: 100%; padding-top: 2em;">
-      <TextBox name={'hipot_absorb'}  title="Коэффициент абсорбции"      value={absorb[$MODE]}/>
+      <TextBox name={'hipot_absorp'}  title="Коэффициент абсорбции"      value={absorp[$MODE]}/>
       <TextBox name={'hipot_u_start'} title="Начальное напряжение, В"    value={u_start}/>
       <TextBox name={'hipot_u_max'}   title="Максимальное напряжение, В" value={u_max}/>
       <TextBox name={'hipot_mode'}    title="Режим испытания"            value={$MODE}

@@ -3,7 +3,7 @@
   import TextBox from "./Components/TextBox.svelte";
   import Button from "./Components/Button.svelte";
   import { TestStates, Phases, } from "../shared/types";
-  import { roundValue, getAverage, getDisbalance, decimal2time } from "../shared/funcs";
+  import { roundValue, getAverage, getDiviationFromAverage, decimal2time } from "../shared/funcs";
   import { TIME, STATE, switchTest, saveTest,
           AMPRS, VOLTS_HI, VOLTS_LO, COEFF } from "../testing/testing_ixx";
 
@@ -40,21 +40,22 @@
   });
 
   $: [
-    avr_amprs,
-    avr_power,
     avr_volts_hi,
     avr_volts_lo,
-    avr_disbalance,
+    avr_amprs,
+    avr_balance,
+    avr_power,
     coeff_real
   ] = (() => {
-    let avr_volts_hi   = getAverage(Object.values($VOLTS_HI));
-    let avr_volts_lo   = getAverage(Object.values($VOLTS_LO));
-    let avr_amprs      = getAverage(Object.values($AMPRS));
-    let avr_power      = avr_volts_hi / avr_amprs;
-    let avr_disbalance = getDisbalance(Object.values($AMPRS));
-    let coeff_real     = 0 < avr_volts_lo ? avr_volts_hi / avr_volts_lo : 0;
+    console.log("AMPRS", getAverage(Object.values($AMPRS)))
+    let avr_volts_hi = getAverage(Object.values($VOLTS_HI));
+    let avr_volts_lo = getAverage(Object.values($VOLTS_LO));
+    let avr_amprs    = getAverage(Object.values($AMPRS));
+    let avr_power    = avr_volts_hi * avr_amprs;
+    let avr_balance  = getDiviationFromAverage(Object.values($AMPRS));
+    let coeff_real   = 0 < avr_volts_lo ? avr_volts_hi / avr_volts_lo : 0;
 
-    return [ avr_amprs, avr_power, avr_volts_hi, avr_volts_lo, avr_disbalance, coeff_real ].map(v => v.toFixed(3));
+    return [ avr_volts_hi, avr_volts_lo, avr_amprs, avr_balance, avr_power, coeff_real ].map(v => v.toFixed(3));
   })();
 </script>
 
@@ -69,7 +70,7 @@
   </div>
   <div class="result ixx">
     <label class="label" for="avr_amps">Дисбаланс, %:</label>
-    <input class="value" name="avr_amps" type="text" value={avr_disbalance}>
+    <input class="value" name="avr_amps" type="text" value={avr_balance}>
     <label class="label" for="avr_amps">Потери, Вт:</label>
     <input class="value" name="avr_amps" type="text" value={avr_power}>
   </div>
@@ -88,8 +89,8 @@
     <TextBox name={'volt_hi_avr'} title="Среднее U ВВ, В" value={avr_volts_hi}/>
   </div>
   <div class="result trans">
-    <label class="label" for="trans_tab">Коэф.трансформации (табличный):</label>
-    <input class="value" name="trans_tab" type="text" value={$COEFF[0]}>
+    <label class="label" for="trans_tabl">Коэф.трансформации (табличный):</label>
+    <input class="value" name="trans_tabl" type="text" value={$COEFF[0]}>
     <label class="label" for="trans_real">(фактический):</label>
     <input class="value" name="trans_real" type="text" value={coeff_real}>
   </div>

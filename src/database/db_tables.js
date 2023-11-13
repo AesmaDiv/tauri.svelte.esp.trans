@@ -3,28 +3,32 @@ import { COMBOS } from "../configs/cfg_localization";
 
 /** Поля поиска для фильтрации списка записей */
 export const RECORD_SEARCH_COLUMNS = [
-  { col: 1, row: 1, name: "datetest",                 label: "Дата испытания"},
-  { col: 2, row: 1, name: "customer", required: true, label: "Заказчик"},
-  { col: 3, row: 1, name: "ordernum", required: true, label: "Наряд-заказ" },
-  { col: 2, row: 4, name: "serial",   required: true, label: "Заводской номер" },
+  { col: 1, row: 1, name: "datetest",                  label: "Дата испытания"},
+  { col: 2, row: 1, name: "customer", required: true,  label: "Заказчик"},
+  { col: 3, row: 1, name: "owner",    required: false, label: "Собственник"},
+  { col: 4, row: 1, name: "ordernum", required: true,  label: "Наряд-заказ" },
+  { col: 2, row: 4, name: "serial",   required: true,  label: "Заводской номер" },
 ]
 /** Поля поиска для фильтрации списка записей */
 export const TRANS_COLUMNS = [
-  { col: 1, row: 4,  name: "name",   label: "Тип трансформатора" },
-  { col: 1, row: 5,  name: "f_power",  label: "Мощность, кВт" },
-  { col: 2, row: 5,  name: "f_nom_u_hi", label: "Ном.напряжение UНВ, В"},
-  { col: 3, row: 5,  name: "f_nom_u_lo",  label: "Ном.напряжение Uнн, В"},
-  { col: 1, row: 6,  name: "f_eds",    label: "ЭДС, %"},
-  { col: 2, row: 6,  name: "f_nom_i_hi", label: "Ном.ток IНВ, А"},
-  { col: 3, row: 6,  name: "f_nom_i_lo",  label: "Ном.ток Iнн, А"},
+  { col: 1, row: 4, name: "name",         label: "Тип трансформатора" },
+  { col: 1, row: 5, name: "f_nom_u_hi",   label: "Ном.напряжение UНВ, В"},
+  { col: 2, row: 5, name: "f_nom_u_lo",   label: "Ном.напряжение Uнн, В"},
+  { col: 3, row: 5, name: "f_power",      label: "Мощность, кВт" },
+  { col: 1, row: 6, name: "f_nom_i_hi",   label: "Ном.ток IНВ, А"},
+  { col: 2, row: 6, name: "f_nom_i_lo",   label: "Ном.ток Iнн, А"},
+  { col: 3, row: 6, name: "f_eds",        label: "ЭДС, %"},
+  { col: 3, row: 4, name: "f_coef_tabl",  label: "Коэф.трансформации"},
+  { col: 4, row: 5, name: "f_t_trans",    label: "Температура, °C"},
+  { col: 4, row: 6, name: "f_humidity",   label: "Влажность, %"},
   // { col: 3, row: 3,  name: "f_ixx",    label: "Ixx, %"},
   // { col: 4, row: 8,  name: "t_trans",  label: "Температура, трансф."},
   // { col: 1, row: 8,  name: "switches", label: "Кол-во отпаек"},
 ]
 /** Дополнительные поля со списками, для отображения в форме */
 export const RECORD_COMBO_COLUMNS = [
-  { col: 3, row: 4, name: "n_connection", label: "Соединение",     items: COMBOS[false].connection},
-  { col: 4, row: 8, name: "oil_admix",    label: "Масло, примеси", items: COMBOS[false].presence},
+  { col: 4, row: 4, name: "n_connection", label: "Соединение",     items: COMBOS[false].connection},
+  { col: 4, row: 8, name: "n_oil_admix",  label: "Масло, примеси", items: COMBOS[false].presence},
 ]
 /** Поля полной информации о записи, для отображения в форме */
 export const RECORD_COLUMNS = [

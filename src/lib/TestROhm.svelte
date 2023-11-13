@@ -4,7 +4,7 @@
   import { TEST_STATE } from "../stores/testing";
   import { ROHM, SWITCH, switchTest, currentClear, sortPoints, savePoints } from "../testing/testing_rohms";
   import { TestStates } from "../shared/types";
-  import { getDelta } from "../shared/funcs";
+  import { getDiviationFromMax } from "../shared/funcs";
 
 
   const eng = false;
@@ -118,7 +118,7 @@
     <table>
       <tbody>
         {#each Object.entries($POINTS_ROHMS) as [name, rohm]}
-        {@const delta = getDelta(Object.values(rohm))}
+        {@const delta = getDiviationFromMax(Object.values(rohm))}
         <tr>
           <td class="radio"><input type="radio" id={name} on:click={currentSelect}></td>
           <td class="value" style="padding-left: 5px;">{name}</td>

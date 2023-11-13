@@ -90,7 +90,7 @@ function readTest() {
   AMPRS.set(new PhasesPoint(...Object.keys(NAMES_I_XX).map(name => record[`f_${name}`])));
   VOLTS_HI.set(new PhasesPoint(...Object.keys(NAMES_U_HI).map(name => record[`f_${name}`])));
   VOLTS_LO.set(new PhasesPoint(...Object.keys(NAMES_U_LO).map(name => record[`f_${name}`])));
-  COEFF.set([record['f_coef_tab'], record['f_coef_real']]);
+  COEFF.set([record['f_coef_tabl'], record['f_coef_real']]);
 }
 
 /** таймер измерения */

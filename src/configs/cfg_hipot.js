@@ -16,6 +16,6 @@ export const DATANAMES = [
 ]
 /** Параметры осей графика потребляемой мощности по умолчанию */
 export const AXIES = {
-  time:   { minimum: 0, maximum: 20, ticks: 4, },
-  resist: { minimum: 0, maximum: 10000000, ticks: 6, },
+  time:   { minimum: 0, maximum: 20, ticks: 4, label: 'sec.'},
+  resist: { minimum: 0, maximum: 1000000, ticks: 6, label: 'MΩ'},
 }

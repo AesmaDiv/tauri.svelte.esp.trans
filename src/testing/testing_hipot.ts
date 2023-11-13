@@ -35,7 +35,11 @@ SETTINGS.subscribe(settings => {
   if (!settings.test) return;
   // обновить параметры оси времени для графиков испытаний
   AXIES.update(axis => {
-    axis.time = { minimum: 0, maximum: settings.test.hipot.duration, ticks: 5, coef: 1/* / 60*/ };
+    axis.time = { 
+      ...axis.time,
+      minimum: 0, maximum: settings.test.hipot.duration,
+      ticks: 5, coef: 1
+    };
     // axis.resist = { minimum: 1, maximum: 10000000, ticks: 5, coef: 1 };
     return axis;
   });

@@ -51,7 +51,7 @@ export function decimal2time(time: {hours?: number, minutes?: number, seconds?:n
   return result.toISOString().slice(11,slice_ind);
 }
 /** Конвертация байтового массива в строку */
-export function bytes2string(bytes) : string {
+export function bytes2string(bytes: number[]) : string {
   return String.fromCharCode.apply(null, bytes);
 }
 /** Конвертация строки в байтовый массив */
@@ -95,24 +95,30 @@ export function getAverage(values: number[]): number {
   let sum = values.reduce((acc, val) => acc + val, 0);
   return values.length ? sum / values.length : 0;
 }
-/** Максимальный дисбаланс значений массива */
-export function getDisbalance(values: number[]): number {
+/** Максимальный дисбаланс значений массива от среднего */
+export function getDiviationFromAverage(values: number[]): number {
   let avr = getAverage(values);
   return Math.max(...values.map((value: number) => value / avr));
 }
-/** Расчёт максимального отклонения */
-export function getDelta(values: number[]) : number {
+/** Расчёт максимального отклонения от максимального значения */
+export function getDiviationFromMax(values: number[]) : number {
   let min: number = Math.min(...values);
   let max: number = Math.max(...values);
   return 100 * (max - min) / max;
 }
+/** Расчёт максимального отклонения от максимального значения */
+export function getDiviationFromFirst(values: number[]) : number {
+  let first: number = values[0];
+  let min: number = Math.min(...values.slice(1));
+  return Math.abs(100 * (first - min) / first);
+}
 /** Округлить числа в массиве до указанного кол-ва знаков после запятой */
-export function roundArray(floats, decnum) {
-  let result = floats.map(x => roundValue(x, decnum));
+export function roundArray(floats: number[], decnum: number) {
+  let result = floats.map((x: number) => roundValue(x, decnum));
   return result;
 }
 /** Округлить число до указанного кол-ва знаков после запятой */
-export function roundValue(float, decnum) {
+export function roundValue(float: number, decnum) {
   let pow = Math.pow(10, decnum);
   return Math.round(float * pow) / pow;
 }
