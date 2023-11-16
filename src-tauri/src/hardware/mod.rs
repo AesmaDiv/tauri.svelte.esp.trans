@@ -1,20 +1,25 @@
+/*
+  МОДУЛЬ ДЛЯ РАБОТЫ С ОБОРУДОВАНИЕМ
+*/
 extern crate adam;
 extern crate tauri;
 extern crate com_helper;
 
 use adam::models::{Data, Analog, Digital, AdamData, Endian};
-use adam::{read, write, write_bytes, crc16};
+use adam::{read_async, write, write_bytes, crc16};
 use com_helper::ComHelper;
 use once_cell::sync::OnceCell;
 
-
+/// переменная для хранения ссылки на СОМ-порт
 static mut SERIAL: OnceCell<ComHelper> = OnceCell::new();
+/// переменная для хранения ссылки на окно программы
 static mut WINDOW: OnceCell<tauri::Window> = OnceCell::new();
 const LOGGED: bool = false;
 
 
 #[tauri::command]
-pub fn adam_read(address: &str) -> AdamData {
+/// чтение карт аналоговых и дискретных каналов
+pub async fn adam_read(address: &str) -> Result<AdamData, ()> {
   //// On error will return empty, but valid structure
   // let mut analog = read::<Analog>(address, Endian::BIG);
   // let mut digital = read::<Digital>(address, Endian::BIG);
@@ -23,12 +28,17 @@ pub fn adam_read(address: &str) -> AdamData {
   //   if digital.is_none() { digital = Some(DIGITAL.clone()) }
   // }
   //// On error will return None for slots
-  let analog = read::<Analog>(address, Endian::BIG);
-  let digital = read::<Digital>(address, Endian::BIG);
+  let mut analog: Option<Analog> = None;
+  let mut digital: Option<Digital> = None;
+  async {
+    analog = read_async::<Analog>(address, Endian::BIG).await;
+    digital = read_async::<Digital>(address, Endian::BIG).await;
+  }.await;
 
-  return AdamData{ analog, digital };
+  return Ok(AdamData{ analog, digital });
 }
 #[tauri::command]
+/// запись данных в адам
 pub fn adam_write(address: &str, data: Data, slottype: &str) -> bool {
   match slottype {
     "analog" => return write::<Analog>(address, &data, Endian::BIG),
@@ -37,6 +47,7 @@ pub fn adam_write(address: &str, data: Data, slottype: &str) -> bool {
   }
 }
 #[tauri::command]
+/// отправка в адам байтовой комманды
 pub fn adam_write_bytes(address: &str, bytes: Vec<u8>) -> bool {
   if let Err(err) = write_bytes(address, &bytes) {
     eprintln!("Adam::write_bytes::!!!Error {err}");
@@ -45,17 +56,20 @@ pub fn adam_write_bytes(address: &str, bytes: Vec<u8>) -> bool {
   true
 }
 #[tauri::command]
+/// добавление CRC16 суммы к сообщению
 pub fn add_crc16(bytes: Vec<u8>) -> Vec<u8> {
   let crc = crc16(&bytes).to_be_bytes();
   return [bytes.clone(), crc.to_vec()].concat();
 }
 
 #[tauri::command]
+/// открытие СОМ-порта
 pub fn com_open(wnd: tauri::Window, name: &str, rate: u32, do_listen: bool) -> bool {
   unsafe {
     if let Some(mut com) = SERIAL.take().or(Some(ComHelper::new(name, rate))) {
       com.close();
       if com.open() {
+        // если do_listen задано - порт в режиме прослушивания
         if do_listen { com.listen(Box::new(on_received)) }
         WINDOW.take();
         SERIAL.set(com);
@@ -69,6 +83,7 @@ pub fn com_open(wnd: tauri::Window, name: &str, rate: u32, do_listen: bool) -> b
 }
 
 #[tauri::command]
+/// закрытие СОМ-порта
 pub fn com_close() {
   unsafe {
     if let Some(mut com) = SERIAL.take() { com.close() }
@@ -76,6 +91,7 @@ pub fn com_close() {
 }
 
 #[tauri::command]
+/// запись в СОМ-порт
 pub fn com_write(bytes: Vec<u8>) -> bool {
   unsafe {
     if let Some(com) = SERIAL.get_mut() {
@@ -87,6 +103,7 @@ pub fn com_write(bytes: Vec<u8>) -> bool {
 }
 
 #[tauri::command]
+/// отправка запроса в СОМ-порт и получение ответа
 pub fn com_request(bytes: Vec<u8>) -> Vec<u8> {
   unsafe {
     if let Some(com) = SERIAL.get_mut() {
@@ -96,7 +113,7 @@ pub fn com_request(bytes: Vec<u8>) -> Vec<u8> {
     return Vec::new();
   }
 }
-
+/// функция обработки пришедший данных в режиме прослушивания
 fn on_received(data: Vec<u8>) {
   unsafe {
     if let Some(wnd) = WINDOW.get() {

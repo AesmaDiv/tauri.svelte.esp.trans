@@ -3,12 +3,12 @@ import { get, writable, type Writable } from "svelte/store";
 
 import { NotifierKind, showMessage } from "../lib/Notifier/notifier";
 import type { AxisInfo } from "../lib/Chart/chart";
-import { type ITiming, TestStates, HipotModes, HipotPoint, type HipotData, Point } from "../shared/types";
+import { type ITiming, TestStates, HipotModes, HipotPoint, type HipotData, Point, type IAdamData } from "../shared/types";
 import { sleep } from "../shared/funcs";
 import { POINTS_HIPOT, updatePoints, updateRecord } from "../stores/database";
 import { TEST_STATE } from "../stores/testing";
 import { Di30R, Di30R_Flags, type Di30R_Values } from "./equipment/di30r";
-import { switchDigital } from "./equipment/adam";
+import { switchDigital, getAnalogValue, readAll } from "./equipment/adam";
 import { SETTINGS } from "../stores/settings";
 import { AXIES as AXIES_HIPOT_INIT } from "../configs/cfg_hipot";
 import { HIPOT_INIT } from "./temp";
@@ -20,10 +20,12 @@ let di30r      : Di30R = undefined;
 let test_timer : NodeJS.Timer;
 /** Состояние испытания */
 let is_running : boolean = false;
+
+
 /** Текущий режим (ВВ-НВ, ВВ-0, НВ-0)*/
-export let MODE   : Writable<HipotModes>   = writable(undefined);
+export let MODE  : Writable<HipotModes>   = writable(undefined);
 /** Текущие значения */
-export let POINTS : Writable<HipotPoint> = writable(new HipotPoint());
+export let POINT : Writable<HipotPoint> = writable(new HipotPoint());
 /** Маркер графика портребляемой мощности */
 export let MARKER: Writable<Point> = writable(new Point());
 /** Параметры осей графика потребляемой мощности */
@@ -124,17 +126,19 @@ async function stopTest() {
     await di30r.disconnect();
     await switchMode(undefined);
     di30r = undefined;
-    POINTS.set(new HipotPoint());
+    POINT.set(new HipotPoint());
     TEST_STATE.set(TestStates.IDLE);
     showMessage("Испытание закончено", NotifierKind.SUCCESS);
   }
 }
 /** Измерение */
 async function measure() {
+  const settings = get(SETTINGS);
   const values: Di30R_Values = await di30r.getValues();
-  const timing: ITiming = get(SETTINGS).test.hipot;
-  const coeffs = get(SETTINGS).di30r;
-  POINTS.update(point => {
+  const timing: ITiming = settings.test.hipot;
+  const coeffs = settings.di30r;
+
+  POINT.update(point => {
     if (is_running) point.time += timing.pulling_rate / 1000.0;
     // проверяем время для окончания испытания
     if (point.time > timing.duration && is_running) stopTest();

@@ -4,6 +4,7 @@
     import { saveSettings } from "../stores/settings";
     import Button from "./Components/Button.svelte";
     import { switchAdamReading, ADAM_READING } from "../stores/equipment";
+    import TextBox from "./Components/TextBox.svelte";
 
     let showModal = false;
 
@@ -32,11 +33,17 @@
     &#9776;
   </Button>
   <div class="header title">OOO «ЭПУ Сервис»: Испытание ТМПН</div>
-  <Button class="btn-menu" onClick={() => onClick('adam')}
-    style="background: {$ADAM_READING ? 'green' : 'red'}; color: white;"
-    >
-    &#9881;
-  </Button>
+  <div class="sensors">
+    <TextBox title="T,°C"/>
+    <TextBox title="ϕ,%"/>
+    <div>
+      <Button class="btn-menu" onClick={() => onClick('adam')}
+        style="background: {$ADAM_READING ? 'green' : 'red'}; color: white;"
+        >
+        &#9881;
+      </Button>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -68,5 +75,10 @@
     font-size: larger;
     font-weight: 800;
   }
-  
+  .sensors {
+    display: grid;
+    grid-template-columns: 50px 50px 50px;
+    grid-template-rows: auto;
+
+  }
 </style>

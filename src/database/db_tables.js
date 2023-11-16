@@ -1,6 +1,13 @@
 import { COMBOS } from "../configs/cfg_localization";
 
 
+/** Привязки полей к таблице списка */
+export const LIST_BINDINGS = {
+  id: '№',
+  datetest: 'Дата',
+  ordernum: 'Наряд-заказ',
+  serial: 'Зав.номер'
+}
 /** Поля поиска для фильтрации списка записей */
 export const RECORD_SEARCH_COLUMNS = [
   { col: 1, row: 1, name: "datetest",                  label: "Дата испытания"},

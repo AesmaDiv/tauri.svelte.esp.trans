@@ -1,5 +1,5 @@
 use std::io::{prelude::*, Error};
-use std::net::{TcpStream, UdpSocket, Ipv4Addr, SocketAddr};
+use std::net::{TcpStream, UdpSocket, SocketAddr};
 use std::time::Duration;
 use models::{Data, SlotParam, Convert, Endian};
 
@@ -12,21 +12,27 @@ const LOGGED: bool = false;
 
 
 pub fn read<T: Convert  + SlotParam>(address: &str, endian: Endian) -> Option<T> {
-  match read_bytes::<T>(address) {
-      Ok(data) => {
-        let values: Vec<u16> = to_values(&data, endian);
-        let result: Option<T> = T::convert(values);
+  process_read(address, read_bytes::<T>(address), endian)
+}
+pub async fn read_async<T: Convert  + SlotParam>(address: &str, endian: Endian) -> Option<T> {
+  process_read(address, read_bytes_async::<T>(address).await, endian)
+}
+fn process_read<T: Convert  + SlotParam>(address: &str, received: Result<Vec<u8>, Error>, endian: Endian) -> Option<T>{
+  match received {
+    Ok(bytes) => {
+      let values: Vec<u16> = to_values(&bytes, endian);
+      let result: Option<T> = T::convert(values);
 
-        return result;
-      },
-      Err(error) => {
-        eprintln!(
-          "Adam::read::!!! Error reading {} from {address} >> {:?}",
-          std::any::type_name::<T>(),
-          error.to_string()
-        );
-        return None;
-      }
+      return result;
+    },
+    Err(error) => {
+      eprintln!(
+        "Adam::read::!!! Error reading {} from {address} >> {:?}",
+        std::any::type_name::<T>(),
+        error.to_string()
+      );
+      return None;
+    }
   };
 }
 pub fn write<T: SlotParam>(address: &str, data: &Data, endian: Endian) -> bool {
@@ -58,10 +64,10 @@ pub fn listen(address: &str) -> std::io::Result<()> {
 pub fn read_bytes<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
   let endpoint: &str = &[address, "502"].join(":");
   if let Ok(sock) = endpoint.parse() {
-    let timeout = Duration::from_millis(CONNECT_TIMEOUT);
-    let mut stream = TcpStream::connect_timeout(&sock, timeout)?;
     let mut bytes = vec![0x0; T::SIZE[0]];
     let mut result = vec![0x0; T::SIZE[1]];
+    let timeout = Duration::from_millis(CONNECT_TIMEOUT);
+    let mut stream = TcpStream::connect_timeout(&sock, timeout)?;
     stream.write(&T::COMMAND_GET)?;
     stream.read(&mut bytes)?;
     result.copy_from_slice(&bytes[9..]);
@@ -72,6 +78,9 @@ pub fn read_bytes<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
     std::io::ErrorKind::AddrNotAvailable,
     "error parsing IP address")
   )
+}
+pub async fn read_bytes_async<T: SlotParam>(address: &str) -> std::io::Result<Vec<u8>> {
+  read_bytes::<T>(address)
 }
 pub fn write_bytes(address: &str, bytes: &[u8]) -> std::io::Result<()> {
   let endpoint: &str = &[address, "502"].join(":");
@@ -96,6 +105,9 @@ pub fn write_bytes(address: &str, bytes: &[u8]) -> std::io::Result<()> {
     std::io::ErrorKind::AddrNotAvailable,
     "error parsing IP address")
   )
+}
+pub async fn write_bytes_async(address: &str, bytes: &[u8]) -> std::io::Result<()> {
+  write_bytes(address, bytes)
 }
 pub fn crc16(bytes: &Vec<u8>) -> u16 {
   let mut crc: u16 = 0xFFFF;

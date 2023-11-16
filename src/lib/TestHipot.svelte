@@ -4,7 +4,7 @@
   import TestChart from "./TestChart.svelte";
   import { TestStates, HipotModes } from "../shared/types";
   import { isEmpty } from "../shared/funcs";
-  import { MODE, switchTest, POINTS,
+  import { MODE, switchTest, POINT,
            AXIES, MARKER, savePoints, fillPointsRandom } from "../testing/testing_hipot";
   import { POINTS_HIPOT } from "../stores/database";
   import { DATANAMES as fields } from "../configs/cfg_hipot";
@@ -22,13 +22,6 @@
   const setHipotMode = (mode: HipotModes) => {
     MODE.set(mode || undefined);
     console.log($MODE);
-  }
-
-  function calcabsorp(points: Point[]): number {
-    console.log(points);
-    return (points.length === 0 || points[0].y === 0) ?
-      0 :
-      points[points.length - 1].y / points[0].y;
   }
 
   $: [points, absorp, u_start, u_max] = (() => {
@@ -61,7 +54,7 @@
 </script>
 
 <div class="root">
-  <TestControls test_state={TestStates.HIPOT} {fields} data={$POINTS} start={switchTest} save={savePoints} reset={fillPointsRandom}>
+  <TestControls test_state={TestStates.HIPOT} {fields} data={$POINT} start={switchTest} save={savePoints} reset={fillPointsRandom}>
     <div style="height: 100%; padding-top: 2em;">
       <TextBox name={'hipot_absorp'}  title="Коэффициент абсорбции"      value={absorp[$MODE]}/>
       <TextBox name={'hipot_u_start'} title="Начальное напряжение, В"    value={u_start}/>

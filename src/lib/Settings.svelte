@@ -44,41 +44,41 @@
       <TextBox name="com.rohms.rate" style={styleComRateRohms} value={extract($SETTINGS, "com.rohms.rate")} title="Baudrate"/>
     </div>
     <!-- ПАРАМЕТРЫ ИСПЫТАНИЙ -->
-    <table class="table-test">
-      <tr>
-        <th>ВРЕМЕННЫЕ</th>
-        {#each TEST.COLUMNS as col}
-        <th>{col.label}</th>
-        {/each}
-      </tr>
-      {#each TEST.ROWS as row}
-      <tr class="table-cell">
-        <th>{row.label}</th>
-        {#each TEST.COLUMNS as col}
-        {@const name = `${row.name}.${col.name}`}
-        <td><input {name} value={extract($SETTINGS, name)}/></td>
-        {/each}
-      </tr>
-      {/each}
-    </table>
-    <table class="table-test">
-      <tr>
-        <th>Di30R</th>
-        {#each DI30R.COLUMNS as col}
-        <th>{col.label}</th>
-        {/each}
-      </tr>
-      {#each DI30R.ROWS as row}
-      <tr class="table-cell">
-        <th>{row.label}</th>
-        {#each DI30R.COLUMNS as col}
-        {@const name = `${row.name}.${col.name}`}
-        <td><input {name} value={extract($SETTINGS, name)}/></td>
-        {/each}
-      </tr>
-      {/each}
-    </table>
   </div>
+  <table class="table-test table-times">
+    <tr>
+      <th>ВРЕМЕННЫЕ</th>
+      {#each TEST.COLUMNS as col}
+      <th>{col.label}</th>
+      {/each}
+    </tr>
+    {#each TEST.ROWS as row}
+    <tr class="table-cell">
+      <th>{row.label}</th>
+      {#each TEST.COLUMNS as col}
+      {@const name = `${row.name}.${col.name}`}
+      <td><input {name} value={extract($SETTINGS, name)}/></td>
+      {/each}
+    </tr>
+    {/each}
+  </table>
+  <table class="table-test table-di30r">
+    <tr>
+      <th>Di30R</th>
+      {#each DI30R.COLUMNS as col}
+      <th>{col.label}</th>
+      {/each}
+    </tr>
+    {#each DI30R.ROWS as row}
+    <tr class="table-cell">
+      <th>{row.label}</th>
+      {#each DI30R.COLUMNS as col}
+      {@const name = `${row.name}.${col.name}`}
+      <td><input {name} value={extract($SETTINGS, name)}/></td>
+      {/each}
+    </tr>
+    {/each}
+  </table>
   <!-- ЦИФРОВЫЕ КАНАЛЫ -->
   <table class="table-digital">
     <tr>
@@ -121,9 +121,9 @@
 <style>
   form {
     width: 1000px;
-    height: 550px;
+    height: 600px;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: repeat(4, auto);
     grid-template-columns: auto auto;
     gap: 0.5em;
   }
@@ -143,21 +143,30 @@
   .table-test {
     height: fit-content;
   }
+  .table-times {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  .table-di30r {
+    grid-row: 3;
+    grid-column: 1;
+  }
   .table-digital {
     grid-column: 2;
-    grid-row-start: 1;
-    grid-row-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 5;
     height: fit-content;
   }
   .table-analog {
     grid-column-start: 1;
     grid-column-end: 1;
-    grid-row: 2;
+    grid-row: 4;
     height: fit-content;
   }
   table {
     width: 100%;
     border-collapse: collapse;
+    height: fit-content;
   }
   th, td, tr {
     border: 1px solid black;

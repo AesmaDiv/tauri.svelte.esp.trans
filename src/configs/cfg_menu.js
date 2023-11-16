@@ -1,6 +1,6 @@
 /*
   [TODO:] !!!ВАЖНО:
-  После изменения тут НВести правки в описании
+  После изменения тут внести правки в описании
   интерфейса ISettings в файле shared\types.ts
 */
 
@@ -43,6 +43,8 @@ export const ANALOG = {
     { name: 'adam.analog.u_lo_a', label: 'U НВ A' },
     { name: 'adam.analog.u_lo_b', label: 'U НВ B' },
     { name: 'adam.analog.u_lo_c', label: 'U НВ C' },
+    { name: 'adam.analog.temper', label: 'Температура' },
+    { name: 'adam.analog.humid',  label: 'Влажность' },
   ],
   COLUMNS: [
     { name: 'slot',    label: 'слот',     parse_func: parseInt },

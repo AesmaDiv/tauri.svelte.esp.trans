@@ -3,7 +3,7 @@
     "path": "D:\\DB\\transform.sqlite"
   },
   "adam": {
-    "ip": "10.0.0.1",
+    "ip": "127.0.0.1",
     "rate": 500,
     "digital": {
       "rohm_ab": {
@@ -146,6 +146,22 @@
         "d_range": 65535,
         "offset": 0,
         "v_range": 500,
+        "coeff": 1
+      },
+      "temper": {
+        "slot": 0,
+        "channel": 3,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 1370,
+        "coeff": 1
+      },
+      "humid": {
+        "slot": 0,
+        "channel": 4,
+        "d_range": 65535,
+        "offset": 0,
+        "v_range": 100,
         "coeff": 1
       }
     }

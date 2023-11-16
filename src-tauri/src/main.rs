@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+// модули внешний комманд
 pub mod commands;
 pub mod database;
 pub mod hardware;
@@ -8,6 +9,7 @@ pub mod hardware;
 fn main() {
     tauri::Builder::default()
       .invoke_handler(tauri::generate_handler![
+        // регистрация внешний комманд
         commands::logging,
         commands::file_exists,
         hardware::add_crc16,

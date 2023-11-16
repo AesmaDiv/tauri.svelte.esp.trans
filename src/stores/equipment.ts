@@ -1,11 +1,9 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { type Writable, writable, get } from "svelte/store";
-import { Sensors, SensorsBuffers, type IAdamData, VBuffer, type IAdamSource, DigitalStates, type ISettings } from "../shared/types";
+import { Sensors, SensorsBuffers, type IAdamData, DigitalStates, type ISettings } from "../shared/types";
 import { SETTINGS } from "./settings";
 import { RECORD } from "./database";
 import { NotifierKind, showMessage } from "../lib/Notifier/notifier";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { string2bytes, bytes2string, sleep } from "../shared/funcs";
 
 
 /** Состояние чтения с ADAM */
@@ -20,7 +18,7 @@ let tmr_adam : NodeJS.Timer;
 /** Переключение опроса Adam */
 export function switchAdamReading() {
   const rate = get(SETTINGS).adam.rate;
-  if (!tmr_adam) tmr_adam = setInterval(() => updateAdamData(), rate);
+  if (!tmr_adam) tmr_adam = setInterval(async() => await updateAdamData(), 5000);
   else {
     clearInterval(tmr_adam);
     tmr_adam = undefined;
@@ -34,16 +32,15 @@ export function switchAdamReading() {
 }
 
 /** Обновление данных с Adam */
-function updateAdamData() {
+async function updateAdamData() {
   const settings = get(SETTINGS);
-  invoke("adam_read", { address: settings.adam.ip })
-  .then((adam_data : IAdamData) => {
-    if (!adam_data.analog && !adam_data.digital) throw "Ошибка подключения к ADAM";
+  const adam_data : IAdamData = await invoke("adam_read", { address: settings.adam.ip })
+  console.log(adam_data)
+  if (!adam_data.analog && !adam_data.digital) showMessage("Ошибка подключения к ADAM", NotifierKind.ERROR);
+  else {
     updateDStates(adam_data, settings);
-    updateSensors(adam_data, settings);
-    
-  })
-  .catch(reason => showMessage(reason, NotifierKind.ERROR));
+    // updateSensors(adam_data, settings);
+  }
 }
 
 /** Обновление дискретных состояний */

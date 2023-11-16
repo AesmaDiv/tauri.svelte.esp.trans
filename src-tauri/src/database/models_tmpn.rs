@@ -1,3 +1,7 @@
+/*
+  МОДУЛЬ ОПИСАНИЯ ИСПОЛЬЗУЕМЫХ СТРУКТУР
+*/
+
 #![allow(non_snake_case)]
 extern crate rusqlite_helper;
 use rusqlite_helper::dbtable;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { LIST_BINDINGS } from "./database/db_tables";
   import { readSettings } from "./stores/settings";
   import { printProtocol } from "./shared/funcs";
   import { onMount } from "svelte";
@@ -13,14 +14,9 @@
   import ROhm from "./lib/TestROhm.svelte";
 
 
+  // призапуске приложение - перед построением окна - читаем конфиг
   onMount(async () => await readSettings());
-
-  let bindings = {
-    id: '№',
-    datetest: 'Дата',
-    ordernum: 'Наряд-заказ',
-    serial: 'Зав.номер'
-  }
+  /// имя текущей раскрытой группы - слайдера
   let slider_group = 'Данные об объекте испытания :';
 
   const style = "box-shadow: 2px 2px 15px gray;";
@@ -32,7 +28,7 @@
     <AppHeader {style}/>
   </div>
   <div class="testlist">
-    <TableList style={style} {bindings}/>
+    <TableList style={style} bindings={LIST_BINDINGS}/>
   </div>
   <div class="sliders">
     <Slider title="Данные об объекте испытания :" bind:group={slider_group} {style}>
